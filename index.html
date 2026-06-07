@@ -1,0 +1,1349 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>مصمم كروت الأسعار - مصمم الكروت الاحترافي</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#111318;--s1:#181c24;--s2:#1f2330;--s3:#262d3d;
+  --br:#2a3045;--br2:#3a4460;
+  --acc:#f0c040;--acc2:#e05c30;--acc3:#4db8ff;
+  --tx:#dde2f0;--tx2:#8892b0;--tx3:#4a5270;
+  --ok:#3dcc7a;--err:#ff5252;--r:10px;
+}
+body{background:var(--bg);color:var(--tx);font-family:'Cairo',sans-serif;height:100vh;display:flex;flex-direction:column;overflow:hidden}
+
+.hdr{height:52px;background:var(--s1);border-bottom:1px solid var(--br);display:flex;align-items:center;padding:0 20px;gap:10px;flex-shrink:0;z-index:10}
+.hdr-logo{font-size:17px;font-weight:900;color:var(--acc);margin-left:auto;display:flex;align-items:center;gap:8px}
+.hdr-logo small{color:var(--tx3);font-weight:400;font-size:12px}
+.server-status{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--tx3);padding:4px 10px;border-radius:20px;background:var(--s2);border:1px solid var(--br)}
+.status-dot{width:7px;height:7px;border-radius:50%;background:var(--tx3)}
+.status-dot.ok{background:var(--ok);box-shadow:0 0 6px var(--ok)}
+.status-dot.err{background:var(--err)}
+.badge{background:var(--acc);color:#111;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:700}
+
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border-radius:7px;font-family:'Cairo',sans-serif;font-size:13px;font-weight:700;cursor:pointer;border:1.5px solid transparent;transition:.18s;white-space:nowrap}
+.btn-acc{background:var(--acc);color:#111;border-color:var(--acc)}
+.btn-acc:hover{background:#ffd860;transform:translateY(-1px)}
+.btn-ghost{background:transparent;color:var(--tx2);border-color:var(--br)}
+.btn-ghost:hover{background:var(--s2);color:var(--tx);border-color:var(--br2)}
+.btn-ok{background:var(--ok);color:#000;border-color:var(--ok)}
+.btn-err{background:var(--err);color:#fff;border-color:var(--err)}
+.btn:disabled{opacity:.35;cursor:not-allowed}
+.sep{width:1px;height:22px;background:var(--br);margin:0 2px}
+
+.body{display:flex;flex:1;overflow:hidden}
+.sidebar{width:330px;min-width:310px;background:var(--s1);border-left:1px solid var(--br);display:flex;flex-direction:column;overflow:hidden}
+.stabs{display:flex;border-bottom:1px solid var(--br)}
+.stab{flex:1;padding:11px 6px;text-align:center;font-size:12px;font-weight:700;cursor:pointer;color:var(--tx3);border-bottom:2.5px solid transparent}
+.stab.on{color:var(--acc);border-bottom-color:var(--acc)}
+.spanel{flex:1;overflow-y:auto;padding:14px;scrollbar-width:thin}
+
+.fcard{background:var(--s2);border:1.5px solid var(--br);border-radius:var(--r);padding:11px 12px;margin-bottom:8px;cursor:pointer}
+.fcard:hover{border-color:var(--br2)}
+.fcard.on{border-color:var(--acc);background:rgba(240,192,64,.06)}
+.fcard-top{display:flex;align-items:center;gap:7px}
+.fcard-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.fcard-name{font-size:13px;font-weight:700;flex:1}
+.fcard-col{font-size:11px;color:var(--tx3);background:var(--s3);padding:2px 7px;border-radius:20px;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fcard-pos{font-size:11px;color:var(--tx3);margin-top:5px;padding-right:17px}
+.fcard-btns{display:flex;gap:4px;margin-top:7px;padding-right:17px}
+.mbtn{background:var(--s3);border:1px solid var(--br);border-radius:5px;padding:3px 9px;font-size:11px;font-weight:600;cursor:pointer;color:var(--tx2);transition:.15s}
+.mbtn:hover{background:var(--br2);color:var(--tx)}
+.mbtn.del:hover{background:#ff3333;color:#fff}
+
+.psect{margin-bottom:14px}
+.psect-title{font-size:10px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:var(--tx3);margin-bottom:8px;padding-bottom:5px;border-bottom:1px solid var(--br)}
+.prow{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+.plbl{font-size:12px;color:var(--tx2);min-width:58px;flex-shrink:0}
+.pin{flex:1;background:var(--s2);border:1.5px solid var(--br);border-radius:6px;padding:6px 10px;color:var(--tx);font-family:'Cairo',sans-serif;font-size:13px;outline:none;direction:ltr;text-align:right}
+.pin:focus{border-color:var(--acc)}
+.pin[type=color]{height:32px;padding:2px 5px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.no-sel{text-align:center;color:var(--tx3);padding:40px 16px;font-size:13px}
+
+.col-tag{display:inline-flex;align-items:center;gap:4px;background:var(--s2);border:1px solid var(--br);border-radius:6px;padding:4px 9px;font-size:11px;margin:3px;cursor:pointer}
+.col-tag:hover{border-color:var(--acc);color:var(--acc)}
+.dtbl{width:100%;border-collapse:collapse;font-size:11px;margin-top:8px}
+.dtbl th{background:var(--s2);border:1px solid var(--br);padding:5px 7px}
+.dtbl td{border:1px solid var(--br);padding:5px 7px}
+
+.canvas-area{flex:1;display:flex;align-items:center;justify-content:center;overflow:auto;position:relative;background:#0e1018}
+.grid-bg{position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);background-size:28px 28px}
+.cwrap{position:relative;flex-shrink:0}
+#cv{display:block;box-shadow:0 16px 60px rgba(0,0,0,.7)}
+.ov{position:absolute;top:0;left:0;pointer-events:none}
+.ebox{position:absolute;pointer-events:all;cursor:move;border:1.5px dashed transparent;border-radius:3px}
+.ebox:hover{border-color:rgba(240,192,64,.55)!important}
+.ebox.on{border-color:var(--acc)!important;z-index:99}
+.elbl{position:absolute;top:-19px;right:0;background:var(--acc);color:#111;font-size:9px;font-weight:800;padding:1px 6px;border-radius:4px 4px 0 0;white-space:nowrap;pointer-events:none;display:none}
+.ebox.on .elbl{display:block}
+.rh{position:absolute;bottom:-5px;left:-5px;width:11px;height:11px;background:var(--acc);border:2px solid #000;border-radius:2px;cursor:se-resize;pointer-events:all}
+
+.upzone{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;border:2px dashed var(--br);border-radius:18px;width:480px;height:300px;cursor:pointer;transition:.25s;text-align:center}
+.upzone:hover{border-color:var(--acc);background:rgba(240,192,64,.03)}
+
+.fbar{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:6px;background:var(--s1);border:1px solid var(--br);border-radius:50px;padding:7px 16px;z-index:20;box-shadow:0 8px 32px rgba(0,0,0,.5)}
+.fbtn{background:none;border:none;color:var(--tx2);cursor:pointer;padding:6px 11px;border-radius:30px;font-size:12px;font-weight:700;font-family:'Cairo',sans-serif}
+.fbtn:hover{background:var(--s2);color:var(--tx)}
+.fbsep{width:1px;height:22px;background:var(--br)}
+.zlbl{font-size:12px;color:var(--tx2);min-width:40px;text-align:center}
+
+.mbg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;align-items:center;justify-content:center;backdrop-filter:blur(5px)}
+.mbg.open{display:flex}
+.mbox{background:var(--s1);border:1px solid var(--br2);border-radius:14px;padding:24px;width:500px;max-width:95vw;max-height:90vh;overflow-y:auto}
+.mtitle{font-size:17px;font-weight:800;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between}
+
+.pitem{background:var(--s2);border:1.5px solid var(--br);border-radius:8px;padding:11px 14px;display:flex;align-items:center;gap:10px;margin-bottom:8px;transition:.15s}
+.pitem:hover{border-color:var(--br2)}
+.pinfo{flex:1}
+.pname{font-size:13px;font-weight:700}
+.pmeta{font-size:11px;color:var(--tx3);margin-top:2px}
+
+.prog-wrap{position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:400;display:none;align-items:center;justify-content:center}
+.prog-wrap.open{display:flex}
+.prog-box{background:var(--s1);border:1px solid var(--br2);border-radius:14px;padding:30px 40px;text-align:center;min-width:320px}
+.prog-title{font-size:15px;font-weight:700;margin-bottom:16px}
+.prog-bg{background:var(--s3);border-radius:20px;height:10px;overflow:hidden}
+.prog-bar{height:100%;background:var(--acc);border-radius:20px;transition:width .2s}
+.prog-lbl{font-size:12px;color:var(--tx2);margin-top:10px}
+
+.toast{position:fixed;bottom:75px;left:50%;transform:translateX(-50%);padding:9px 22px;border-radius:30px;font-weight:800;font-size:13px;z-index:500;opacity:0;pointer-events:none;transition:opacity .25s}
+.toast.show{opacity:1}
+.toast.ok-t{background:var(--ok);color:#000}
+.toast.err-t{background:var(--err);color:#fff}
+
+.stats-bar{display:flex;gap:10px;margin-bottom:12px;padding:8px;background:var(--s2);border-radius:8px}
+.stat-item{flex:1;text-align:center}
+.stat-value{font-size:18px;font-weight:800;color:var(--acc)}
+.stat-label{font-size:10px;color:var(--tx3)}
+
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-thumb{background:var(--br);border-radius:3px}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="server-status" id="srv-status">
+    <div class="status-dot" id="srv-dot"></div>
+    <span id="srv-lbl">جاري الاتصال...</span>
+  </div>
+  <div class="sep"></div>
+  <button class="btn btn-ghost" onclick="$('fi-tmpl').click()">🖼 رفع قالب</button>
+  <button class="btn btn-ghost" onclick="$('fi-xl').click()">📊 رفع Excel</button>
+  <div class="sep"></div>
+  <button class="btn btn-ghost" onclick="openPresets()">📁 القوالب المحفوظة</button>
+  <button class="btn btn-ghost" id="btn-save" onclick="savePreset()" disabled>💾 حفظ التصميم</button>
+  <div class="sep"></div>
+  <button class="btn btn-ghost" id="btn-preview" onclick="requestPreview()" disabled>👁 معاينة</button>
+  <button class="btn btn-acc" id="btn-export-zip" onclick="exportZip()" disabled>📦 ZIP</button>
+  <button class="btn btn-acc" id="btn-export-pdf" onclick="exportPDF()" disabled>📄 PDF</button>
+
+  <div class="hdr-logo">
+    <small>price card studio</small>
+    مصمم كروت الأسعار
+  </div>
+
+  <input type="file" id="fi-tmpl" accept="image/*" style="display:none" onchange="loadTemplate(event)">
+  <input type="file" id="fi-xl" accept=".xlsx,.xls,.csv" style="display:none" onchange="loadExcel(event)">
+</div>
+
+<div class="body">
+  <div class="canvas-area" id="ca">
+    <div class="grid-bg"></div>
+    <div class="upzone" id="upzone" onclick="$('fi-tmpl').click()">
+      <div style="font-size:44px;opacity:.5">🖼</div>
+      <div style="font-size:17px;font-weight:700">ارفع قالب كرت السعر</div>
+      <div style="font-size:12px;color:var(--tx3)">JPG أو PNG</div>
+      <button class="btn btn-ghost" style="margin-top:4px" onclick="event.stopPropagation();demoTemplate()">جرّب قالب تجريبي</button>
+    </div>
+    <div class="cwrap" id="cwrap" style="display:none">
+      <canvas id="cv"></canvas>
+      <div class="ov" id="ov"></div>
+    </div>
+    <div class="fbar" id="fbar" style="display:none">
+      <button class="fbtn" onclick="openAddField()">＋ حقل</button>
+      <button class="fbtn" onclick="openAddLabel()">📝 نص مساعد</button>
+      <button class="fbtn" onclick="openAddImage()">🖼 صورة</button>
+      <div class="fbsep"></div>
+      <button class="fbtn" onclick="setZoom(zoom-.15)">－</button>
+      <span class="zlbl" id="zlbl">100%</span>
+      <button class="fbtn" onclick="setZoom(zoom+.15)">＋</button>
+      <div class="fbsep"></div>
+      <button class="fbtn" onclick="localRender()">🔄 تحديث</button>
+    </div>
+  </div>
+
+  <div class="sidebar">
+    <div class="stabs">
+      <div class="stab on" id="stab-fields" onclick="sTab('fields')">الحقول</div>
+      <div class="stab" id="stab-props" onclick="sTab('props')">الخصائص</div>
+      <div class="stab" id="stab-data" onclick="sTab('data')">البيانات</div>
+      <div class="stab" id="stab-pdf" onclick="sTab('pdf')">PDF</div>
+    </div>
+    <div class="spanel" id="sp-fields">
+      <div class="stats-bar" id="stats-bar" style="display:none">
+        <div class="stat-item"><div class="stat-value" id="stat-fields">0</div><div class="stat-label">حقول</div></div>
+        <div class="stat-item"><div class="stat-value" id="stat-rows">0</div><div class="stat-label">بطاقات</div></div>
+        <div class="stat-item"><div class="stat-value" id="stat-pages">0</div><div class="stat-label">صفحات PDF</div></div>
+      </div>
+      <div style="font-size:11px;color:var(--tx3);margin-bottom:10px">اسحب الحقول لتحديد مواضعها</div>
+      <div id="fields-list"><div style="color:var(--tx3);font-size:12px;text-align:center;padding:30px 0">لا توجد حقول</div></div>
+      <button class="btn btn-ghost" style="width:100%;margin-top:8px" onclick="openAddField()">＋ حقل ديناميكي</button>
+      <button class="btn btn-ghost" style="width:100%;margin-top:8px" onclick="openAddLabel()">📝 نص مساعد</button>
+      <button class="btn btn-ghost" style="width:100%;margin-top:8px" onclick="openAddImage()">🖼 إضافة صورة</button>
+    </div>
+    <div class="spanel" id="sp-props" style="display:none">
+      <div id="props-inner"><div class="no-sel">🎯<br>انقر على حقل لتعديله</div></div>
+    </div>
+    <div class="spanel" id="sp-data" style="display:none">
+      <div id="data-inner"><div style="color:var(--tx3);font-size:12px;text-align:center;padding:30px">ارفع ملف Excel</div></div>
+    </div>
+    <div class="spanel" id="sp-pdf" style="display:none">
+      <div class="psect">
+        <div class="psect-title">إعدادات PDF</div>
+        <div class="prow">
+          <span class="plbl">عدد البطاقات لكل صفحة</span>
+          <select class="pin" id="pdf-cards-per-page" onchange="updateStats()">
+            <option value="1">1 بطاقة</option>
+            <option value="2">2 بطاقات</option>
+            <option value="4" selected>4 بطاقات (2x2)</option>
+          </select>
+        </div>
+        <div class="prow">
+          <span class="plbl">حجم الصفحة</span>
+          <select class="pin" id="pdf-page-size">
+            <option value="A4">A4 (عمودي)</option>
+            <option value="A4-L">A4 (أفقي)</option>
+          </select>
+        </div>
+        <div class="prow">
+          <span class="plbl">إجمالي البطاقات</span>
+          <span class="pin" id="total-cards-display" style="background:var(--s3)">0</span>
+        </div>
+        <div class="prow">
+          <span class="plbl">عدد الصفحات</span>
+          <span class="pin" id="total-pages-display" style="background:var(--s3)">0</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADD FIELD MODAL -->
+<div class="mbg" id="add-modal">
+  <div class="mbox">
+    <div class="mtitle">إضافة حقل ديناميكي <button class="mbtn del" onclick="closeModal('add-modal')">✕</button></div>
+    <div class="psect">
+      <div class="psect-title">اسم الحقل</div>
+      <input class="pin" id="af-name" placeholder="مثال: السعر الجديد" style="width:100%">
+    </div>
+    <div class="psect">
+      <div class="psect-title">ربط بعمود Excel</div>
+      <select class="pin" id="af-col" style="width:100%;margin-bottom:6px">
+        <option value="">— اختر عمود —</option>
+      </select>
+      <input class="pin" id="af-col-m" placeholder="أو اكتب اسم العمود يدوياً" style="width:100%">
+    </div>
+    <div class="psect">
+      <div class="psect-title">النوع</div>
+      <select class="pin" id="af-type" style="width:100%" onchange="toggleAfType()">
+        <option value="text">نص</option>
+        <option value="price">سعر</option>
+        <option value="price_strike">سعر مشطوب</option>
+        <option value="barcode">باركود</option>
+      </select>
+    </div>
+    <div id="af-style" class="psect">
+      <div class="psect-title">المظهر</div>
+      <div class="prow"><span class="plbl">حجم الخط</span><input class="pin" id="af-size" type="number" value="32"></div>
+      <div class="prow"><span class="plbl">اللون</span><input class="pin" id="af-color" type="color" value="#000000"></div>
+      <div class="prow"><span class="plbl">عريض</span>
+        <select class="pin" id="af-bold"><option value="true">نعم</option><option value="false">لا</option></select>
+      </div>
+    </div>
+    <button class="btn btn-acc" style="width:100%" onclick="confirmAddField()">إضافة ✓</button>
+  </div>
+</div>
+
+<!-- ADD LABEL MODAL -->
+<div class="mbg" id="add-label-modal">
+  <div class="mbox">
+    <div class="mtitle">إضافة نص مساعد <button class="mbtn del" onclick="closeModal('add-label-modal')">✕</button></div>
+    <div class="psect">
+      <div class="psect-title">النص الثابت</div>
+      <input class="pin" id="label-text" placeholder="مثال: قبل الخصم / بعد الخصم" style="width:100%">
+    </div>
+    <div class="psect">
+      <div class="psect-title">الاسم (للتمييز)</div>
+      <input class="pin" id="label-name" placeholder="مثال: نص قبل الخصم" style="width:100%">
+    </div>
+    <div class="psect">
+      <div class="psect-title">المظهر</div>
+      <div class="prow"><span class="plbl">حجم الخط</span><input class="pin" id="label-size" type="number" value="28"></div>
+      <div class="prow"><span class="plbl">اللون</span><input class="pin" id="label-color" type="color" value="#666666"></div>
+      <div class="prow"><span class="plbl">عريض</span>
+        <select class="pin" id="label-bold"><option value="false">لا</option><option value="true">نعم</option></select>
+      </div>
+    </div>
+    <button class="btn btn-acc" style="width:100%" onclick="confirmAddLabel()">إضافة ✓</button>
+  </div>
+</div>
+
+<!-- ADD IMAGE MODAL -->
+<div class="mbg" id="add-image-modal">
+  <div class="mbox">
+    <div class="mtitle">إضافة صورة <button class="mbtn del" onclick="closeModal('add-image-modal')">✕</button></div>
+    <div class="psect">
+      <div class="psect-title">رفع الصورة</div>
+      <input type="file" id="image-file" accept="image/*" style="display:none" onchange="previewImage()">
+      <button class="btn btn-ghost" style="width:100%;margin-bottom:10px" onclick="$('image-file').click()">📁 اختيار صورة</button>
+      <div id="image-preview" style="text-align:center;margin-bottom:10px"></div>
+    </div>
+    <div class="psect">
+      <div class="psect-title">اسم الصورة</div>
+      <input class="pin" id="image-name" placeholder="مثال: شعار المتجر" style="width:100%">
+    </div>
+    <div class="psect">
+      <div class="psect-title">الحجم</div>
+      <div class="two">
+        <input class="pin" id="image-width" type="number" placeholder="العرض" value="150">
+        <input class="pin" id="image-height" type="number" placeholder="الارتفاع" value="150">
+      </div>
+    </div>
+    <button class="btn btn-acc" style="width:100%" onclick="confirmAddImage()">إضافة صورة ✓</button>
+  </div>
+</div>
+
+<!-- PRESETS MODAL -->
+<div class="mbg" id="presets-modal">
+  <div class="mbox">
+    <div class="mtitle">📁 القوالب المحفوظة <button class="mbtn del" onclick="closeModal('presets-modal')">✕</button></div>
+    <div id="presets-list"></div>
+    <div style="margin-top:14px;border-top:1px solid var(--br);padding-top:14px">
+      <input type="file" id="fi-preset" accept=".json" style="display:none" onchange="importPreset(event)">
+      <button class="btn btn-ghost" style="width:100%;margin-bottom:8px" onclick="$('fi-preset').click()">📂 استيراد من ملف JSON</button>
+      <div style="font-size:11px;color:var(--tx3);text-align:center">يمكنك تصدير التصميمات عبر زر 📤 بجانب كل تصميم</div>
+    </div>
+  </div>
+</div>
+
+<!-- SAVE MODAL -->
+<div class="mbg" id="save-modal">
+  <div class="mbox" style="max-width:360px">
+    <div class="mtitle">💾 حفظ التصميم <button class="mbtn del" onclick="closeModal('save-modal')">✕</button></div>
+    <div class="psect">
+      <div class="psect-title">اسم التصميم</div>
+      <input class="pin" id="preset-name" placeholder="مثال: تصميم محل العمران" style="width:100%">
+    </div>
+    <div class="two">
+      <button class="btn btn-acc" onclick="confirmSave()">💾 حفظ</button>
+      <button class="btn btn-ghost" onclick="closeModal('save-modal')">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<div class="prog-wrap" id="prog-wrap">
+  <div class="prog-box">
+    <div class="prog-title" id="prog-title">جاري المعالجة...</div>
+    <div class="prog-bg"><div class="prog-bar" id="prog-bar" style="width:0%"></div></div>
+    <div class="prog-lbl" id="prog-lbl">يرجى الانتظار</div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+// ══════════════════════════════════════════
+//  CONFIG
+// ══════════════════════════════════════════
+const API = "";
+
+let templateDataURL = null;
+let templateImg = null;
+let fields = [];
+let excelData = [];
+let excelCols = [];
+let selectedId = null;
+let zoom = 1;
+let cW = 0, cH = 0;
+let serverOnline = false;
+let pendingImageData = null;
+
+function $(id){ return document.getElementById(id); }
+
+// ══════════════════════════════════════════
+//  SERVER CHECK
+// ══════════════════════════════════════════
+async function checkServer(){
+  try{
+    const r = await fetch(API+'/', {signal: AbortSignal.timeout(2000)});
+    serverOnline = r.ok;
+  }catch{
+    serverOnline = false;
+  }
+  const dot = $('srv-dot');
+  const lbl = $('srv-lbl');
+  if(serverOnline){
+    dot.className='status-dot ok';
+    lbl.textContent='السيرفر يعمل ✓';
+  }else{
+    dot.className='status-dot err';
+    lbl.textContent='السيرفر غير متصل';
+  }
+}
+checkServer();
+setInterval(checkServer, 8000);
+
+// ══════════════════════════════════════════
+//  UPDATE STATS
+// ══════════════════════════════════════════
+function updateStats(){
+  const rowsCount = excelData.length || 1;
+  const fieldsCount = fields.length;
+  const cardsPerPage = parseInt($('pdf-cards-per-page').value) || 4;
+  const pagesCount = Math.ceil(rowsCount / cardsPerPage);
+
+  $('stat-fields').textContent = fieldsCount;
+  $('stat-rows').textContent = rowsCount;
+  $('stat-pages').textContent = pagesCount;
+  $('total-cards-display').textContent = rowsCount;
+  $('total-pages-display').textContent = pagesCount;
+
+  if(templateImg){
+    $('stats-bar').style.display = 'flex';
+  } else {
+    $('stats-bar').style.display = 'none';
+  }
+}
+
+// ══════════════════════════════════════════
+//  TEMPLATE
+// ══════════════════════════════════════════
+function loadTemplate(e){
+  const f=e.target.files[0]; if(!f)return;
+  const r=new FileReader();
+  r.onload=ev=>{
+    const img=new Image();
+    img.onload=()=>{
+      templateImg=img; templateDataURL=ev.target.result;
+      cW=img.width; cH=img.height;
+      initCanvas(); updateStats(); toast('تم تحميل القالب ✓','ok');
+    };
+    img.src=ev.target.result;
+  };
+  r.readAsDataURL(f);
+}
+
+function demoTemplate(){
+  const c=document.createElement('canvas'); c.width=600; c.height=720;
+  const ctx=c.getContext('2d');
+  const g=ctx.createLinearGradient(0,0,0,720);
+  g.addColorStop(0,'#ffe600'); g.addColorStop(1,'#ffc200');
+  ctx.fillStyle=g; ctx.fillRect(0,0,600,720);
+  ctx.fillStyle='#c50000'; ctx.fillRect(0,0,600,95);
+  ctx.fillStyle='#fff'; ctx.font='bold 40px Cairo,Arial'; ctx.textAlign='center';
+  ctx.fillText('اسم المتجر',300,60);
+  ctx.fillStyle='#111'; ctx.fillRect(0,650,600,70);
+  ctx.fillStyle='#ffe600'; ctx.font='bold 22px Cairo,Arial';
+  ctx.fillText('ريال سعودي',300,690);
+  ctx.strokeStyle='#c50000'; ctx.lineWidth=5; ctx.strokeRect(12,12,576,696);
+  const img=new Image();
+  img.onload=()=>{
+    templateImg=img; templateDataURL=c.toDataURL();
+    cW=600; cH=720; initCanvas();
+    fields=[
+      {id:uid(),name:'السعر الجديد',col:'سعر البيع للفرع',type:'price',x:190,y:295,w:220,h:100,size:78,color:'#000000',bold:true,staticVal:'',imageData:''},
+      {id:uid(),name:'السعر القديم',col:'سعر قبل الخصم',type:'price_strike',x:195,y:415,w:210,h:65,size:46,color:'#cc0000',bold:true,staticVal:'',imageData:''},
+      {id:uid(),name:'اسم المنتج',col:'اسم الصنف المعتمد',type:'text',x:40,y:500,w:520,h:55,size:28,color:'#111111',bold:false,staticVal:'',imageData:''},
+      {id:uid(),name:'الموديل',col:'الموديل',type:'text',x:80,y:565,w:440,h:38,size:20,color:'#333333',bold:false,staticVal:'',imageData:''},
+      {id:uid(),name:'الباركود',col:'الباركود',type:'barcode',x:170,y:615,w:260,h:55,size:0,color:'#000000',bold:false,staticVal:'',imageData:''},
+      {id:uid(),name:'نص قبل الخصم',col:'',type:'static_label',x:150,y:385,w:100,h:35,size:24,color:'#ff0000',bold:true,staticVal:'قبل الخصم',imageData:''},
+      {id:uid(),name:'نص السعر الجديد',col:'',type:'static_label',x:150,y:265,w:100,h:35,size:24,color:'#00aa00',bold:true,staticVal:'السعر الجديد',imageData:''},
+    ];
+    renderAll(); updateStats(); toast('قالب تجريبي جاهز','ok');
+  };
+  img.src=c.toDataURL();
+}
+
+function initCanvas(){
+  $('upzone').style.display='none';
+  $('cwrap').style.display='block';
+  $('fbar').style.display='flex';
+  $('btn-save').disabled=false;
+  $('btn-preview').disabled=false;
+  $('btn-export-zip').disabled=false;
+  $('btn-export-pdf').disabled=false;
+  const cv=$('cv'); cv.width=cW; cv.height=cH;
+  const ov=$('ov'); ov.style.width=cW+'px'; ov.style.height=cH+'px';
+  applyZoom(); renderAll();
+}
+
+// ══════════════════════════════════════════
+//  EXCEL
+// ══════════════════════════════════════════
+function loadExcel(e){
+  const f=e.target.files[0]; if(!f)return;
+  const r=new FileReader();
+  r.onload=ev=>{
+    const wb=XLSX.read(ev.target.result,{type:'array'});
+    const ws=wb.Sheets[wb.SheetNames[0]];
+    excelData=XLSX.utils.sheet_to_json(ws);
+    excelCols=excelData.length?Object.keys(excelData[0]):[];
+    renderDataTab(); localRender(); populateCols(); updateStats();
+    toast(`${excelData.length} صف · ${excelCols.length} عمود ✓`,'ok');
+  };
+  r.readAsArrayBuffer(f);
+}
+
+function renderDataTab(){
+  const d=$('data-inner');
+  if(!excelData.length){d.innerHTML='<div style="color:var(--tx3);font-size:12px;text-align:center;padding:30px">ارفع ملف Excel</div>';return;}
+  const cols=excelCols, rows=excelData.slice(0,5);
+  d.innerHTML=`
+    <div style="font-size:12px;color:var(--acc);margin-bottom:8px;font-weight:700">${excelData.length} صف · ${cols.length} عمود</div>
+    <div style="font-size:11px;color:var(--tx3);margin-bottom:7px">انقر لإضافة عمود كحقل:</div>
+    <div style="display:flex;flex-wrap:wrap;margin-bottom:10px">
+      ${cols.map(c=>`<span class="col-tag" onclick="quickAdd('${c.replace(/'/g,"\\'")}')">＋ ${c}</span>`).join('')}
+    </div>
+    <div style="overflow-x:auto;max-height:240px;overflow-y:auto">
+    <table class="dtbl"><thead>发展${cols.map(c=>`<th>${c}</th>`).join('')}</thead>
+    <tbody>${rows.map(r=>`<tr>${cols.map(c=>`<td>${r[c]??''}</td>`).join('')}</tr>`).join('')}</tbody>
+    </table></div>
+    ${excelData.length>5?`<div style="font-size:11px;color:var(--tx3);margin-top:5px">أول 5 من ${excelData.length}</div>`:''}
+  `;
+}
+
+function populateCols(){
+  const s=$('af-col');
+  s.innerHTML='<option value="">— اختر عمود —</option>'+excelCols.map(c=>`<option value="${c}">${c}</option>`).join('');
+}
+
+function quickAdd(col){
+  if(!templateImg){toast('ارفع القالب أولاً','err');return;}
+  const f={id:uid(),name:col,col:col,type:'text',x:Math.round(cW/2-110),y:Math.round(cH/2-25),w:220,h:50,size:28,color:'#000000',bold:false,staticVal:'',imageData:''};
+  fields.push(f); renderAll(); selectField(f.id); sTab('fields'); updateStats();
+  toast(`تمت إضافة "${col}"`, 'ok');
+}
+
+// ══════════════════════════════════════════
+//  LOCAL RENDER
+// ══════════════════════════════════════════
+function localRender(){
+  if(!templateImg)return;
+  const cv=$('cv'), ctx=cv.getContext('2d');
+  const row=excelData.length?excelData[0]:{};
+  ctx.clearRect(0,0,cW,cH);
+  ctx.drawImage(templateImg,0,0,cW,cH);
+
+  for(const f of fields){
+    if(f.type==='image'){
+      if(f.imageData && f.imageData.startsWith('data:image')){
+        const img = new Image();
+        img.src = f.imageData;
+        if(img.complete && img.naturalWidth > 0) {
+          ctx.drawImage(img, f.x, f.y, f.w, f.h);
+        } else {
+          ctx.fillStyle = '#f0f0f0';
+          ctx.fillRect(f.x, f.y, f.w, f.h);
+          ctx.fillStyle = '#888';
+          ctx.font = '12px Cairo';
+          ctx.textAlign = 'center';
+          ctx.fillText('🖼 تحميل...', f.x+f.w/2, f.y+f.h/2);
+          ctx.strokeStyle = '#aaa';
+          ctx.strokeRect(f.x, f.y, f.w, f.h);
+          const loadImg = new Image();
+          loadImg.onload = () => { ctx.drawImage(loadImg, f.x, f.y, f.w, f.h); };
+          loadImg.src = f.imageData;
+        }
+      } else {
+        ctx.fillStyle = '#f0f0f0';
+        ctx.fillRect(f.x, f.y, f.w, f.h);
+        ctx.fillStyle = '#888';
+        ctx.font = '12px Cairo';
+        ctx.textAlign = 'center';
+        ctx.fillText('📷 اضغط لتحديد صورة', f.x+f.w/2, f.y+f.h/2);
+        ctx.strokeStyle = '#aaa';
+        ctx.strokeRect(f.x, f.y, f.w, f.h);
+      }
+      continue;
+    }
+
+    if(f.type==='barcode'){
+      ctx.save();
+      ctx.fillStyle = 'white';
+      ctx.fillRect(f.x, f.y, f.w, f.h);
+      const val = String(row[f.col] || f.staticVal || '123456789');
+      ctx.fillStyle = '#000';
+      ctx.font = '10px monospace';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'bottom';
+      ctx.fillText(val, f.x+f.w/2, f.y+f.h-1);
+      for(let i=0; i<val.length; i++){
+        const bw = Math.max(1, (f.w/val.length)*.55);
+        ctx.fillRect(f.x+i*(f.w/val.length), f.y+2, bw, f.h-14);
+      }
+      ctx.restore();
+      continue;
+    }
+
+    let text = '';
+    if(f.type==='static_label') text = f.staticVal;
+    else if(f.type==='static') text = f.staticVal;
+    else text = String(row[f.col] ?? '');
+
+    if(!text) continue;
+
+    ctx.save();
+    ctx.font = `${f.bold?'bold':''} ${f.size}px Cairo,Arial`;
+    ctx.fillStyle = f.color;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    const cx = f.x+f.w/2, cy = f.y+f.h/2;
+
+    const words = text.split(' ');
+    let lines = [];
+    let currentLine = '';
+    for(const word of words){
+      const testLine = currentLine ? currentLine + ' ' + word : word;
+      const metrics = ctx.measureText(testLine);
+      if(metrics.width < f.w - 20){
+        currentLine = testLine;
+      } else {
+        if(currentLine) lines.push(currentLine);
+        currentLine = word;
+      }
+    }
+    if(currentLine) lines.push(currentLine);
+    if(lines.length === 0) lines = [text];
+
+    const lineHeight = f.size * 1.3;
+    const totalHeight = lines.length * lineHeight;
+    let startY = cy - totalHeight/2;
+
+    for(let i=0; i<lines.length; i++){
+      const lineY = startY + i * lineHeight + lineHeight/2;
+      ctx.fillText(lines[i], cx, lineY);
+
+      if(f.type==='price_strike'){
+        const tw = ctx.measureText(lines[i]).width;
+        ctx.strokeStyle = f.color;
+        ctx.lineWidth = Math.max(2, f.size*0.07);
+        ctx.beginPath();
+        ctx.moveTo(cx-tw/2, lineY);
+        ctx.lineTo(cx+tw/2, lineY);
+        ctx.stroke();
+      }
+    }
+    ctx.restore();
+  }
+}
+
+function renderAll(){ localRender(); renderOverlay(); renderFieldsList(); if(selectedId)renderProps(); updateStats(); }
+
+// ══════════════════════════════════════════
+//  OVERLAY + DRAG/RESIZE
+// ══════════════════════════════════════════
+function renderOverlay(){
+  const ov=$('ov'); ov.innerHTML='';
+  const COLORS={price:'#f0c040',price_strike:'#e05c30',text:'#4db8ff',barcode:'#3dcc7a',static_label:'#aa88ff',image:'#ff88aa'};
+  for(const f of fields){
+    const el=document.createElement('div');
+    el.className='ebox'+(f.id===selectedId?' on':'');
+    el.style.cssText=`left:${f.x}px;top:${f.y}px;width:${f.w}px;height:${f.h}px;`;
+    const lbl=document.createElement('div');
+    lbl.className='elbl'; lbl.textContent=f.name; el.appendChild(lbl);
+    if(f.id===selectedId){
+      const rh=document.createElement('div');
+      rh.className='rh';
+      rh.addEventListener('mousedown',e=>startResize(e,f));
+      el.appendChild(rh);
+    }
+    el.addEventListener('mousedown',e=>{ if(e.target.classList.contains('rh'))return; startDrag(e,f); });
+    el.addEventListener('click',e=>{ e.stopPropagation(); selectField(f.id); });
+    ov.appendChild(el);
+  }
+  ov.addEventListener('click',e=>{ if(e.target===ov)selectField(null); });
+}
+
+function startDrag(e,f){
+  e.preventDefault(); selectField(f.id);
+  const rect=$('ov').getBoundingClientRect();
+  const ox=(e.clientX-rect.left)/zoom-f.x, oy=(e.clientY-rect.top)/zoom-f.y;
+  const mv=ev=>{ f.x=Math.round(Math.max(0,(ev.clientX-rect.left)/zoom-ox)); f.y=Math.round(Math.max(0,(ev.clientY-rect.top)/zoom-oy)); renderAll(); };
+  const up=()=>{ window.removeEventListener('mousemove',mv); window.removeEventListener('mouseup',up); };
+  window.addEventListener('mousemove',mv); window.addEventListener('mouseup',up);
+}
+
+function startResize(e,f){
+  e.preventDefault(); e.stopPropagation();
+  const sx=e.clientX,sy=e.clientY,sw=f.w,sh=f.h;
+  const mv=ev=>{ f.w=Math.max(40,sw+(ev.clientX-sx)/zoom); f.h=Math.max(40,sh+(ev.clientY-sy)/zoom); renderAll(); };
+  const up=()=>{ window.removeEventListener('mousemove',mv); window.removeEventListener('mouseup',up); };
+  window.addEventListener('mousemove',mv); window.addEventListener('mouseup',up);
+}
+
+// ══════════════════════════════════════════
+//  SELECTION + PROPS
+// ══════════════════════════════════════════
+function selectField(id){ selectedId=id; renderAll(); if(id){sTab('props');renderProps();} }
+
+function deleteField(id){
+  fields=fields.filter(f=>f.id!==id);
+  if(selectedId===id)selectedId=null;
+  renderAll(); sTab('fields'); updateStats();
+}
+
+function renderFieldsList(){
+  const c=$('fields-list');
+  if(!fields.length){c.innerHTML='<div style="color:var(--tx3);font-size:12px;text-align:center;padding:30px 0">لا توجد حقول</div>';return;}
+  const COLORS={price:'#f0c040',price_strike:'#e05c30',text:'#4db8ff',barcode:'#3dcc7a',static_label:'#aa88ff',image:'#ff88aa'};
+  c.innerHTML=fields.map(f=>`
+    <div class="fcard${f.id===selectedId?' on':''}" onclick="selectField('${f.id}')">
+      <div class="fcard-top">
+        <div class="fcard-dot" style="background:${COLORS[f.type]||'#aaa'}"></div>
+        <span class="fcard-name">${f.name}</span>
+        <span class="fcard-col">${f.type==='image'?'🖼 صورة':(f.type==='static_label'?'نص ثابت':(f.col||'—'))}</span>
+      </div>
+      <div class="fcard-pos">📍 ${Math.round(f.x)}, ${Math.round(f.y)} · ${Math.round(f.w)}×${Math.round(f.h)}</div>
+      <div class="fcard-btns">
+        <button class="mbtn" onclick="event.stopPropagation();selectField('${f.id}');sTab('props')">✏ تعديل</button>
+        <button class="mbtn del" onclick="event.stopPropagation();deleteField('${f.id}')">🗑</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderProps(){
+  const f=fields.find(x=>x.id===selectedId);
+  const c=$('props-inner');
+  if(!f){c.innerHTML='<div class="no-sel">🎯<br>انقر على حقل لتعديله</div>';return;}
+  const isBC=f.type==='barcode', isLabel=f.type==='static_label', isImage=f.type==='image';
+
+  c.innerHTML=`
+    <div class="psect">
+      <div class="psect-title">الاسم</div>
+      <input class="pin" value="${escapeHtml(f.name)}" onchange="sp('name',this.value)" style="width:100%">
+    </div>
+    <div class="psect">
+      <div class="psect-title">الموضع والحجم</div>
+      <div class="two">
+        <div><div style="font-size:11px">X</div><input class="pin" type="number" value="${Math.round(f.x)}" onchange="sp('x',+this.value)"></div>
+        <div><div style="font-size:11px">Y</div><input class="pin" type="number" value="${Math.round(f.y)}" onchange="sp('y',+this.value)"></div>
+        <div><div style="font-size:11px">العرض</div><input class="pin" type="number" value="${Math.round(f.w)}" onchange="sp('w',+this.value)"></div>
+        <div><div style="font-size:11px">الارتفاع</div><input class="pin" type="number" value="${Math.round(f.h)}" onchange="sp('h',+this.value)"></div>
+      </div>
+    </div>
+    ${!isLabel && !isBC && !isImage ? `
+    <div class="psect">
+      <div class="psect-title">ربط بعمود Excel</div>
+      <select class="pin" style="width:100%;margin-bottom:5px" onchange="sp('col',this.value)">
+        <option value="">— اختر —</option>
+        ${excelCols.map(c=>`<option value="${c}"${f.col===c?' selected':''}>${c}</option>`).join('')}
+      </select>
+      <input class="pin" value="${f.col||''}" placeholder="أو اكتب يدوياً" style="width:100%" onchange="sp('col',this.value)">
+    </div>
+    ` : ''}
+    ${isLabel ? `
+    <div class="psect">
+      <div class="psect-title">النص الثابت</div>
+      <input class="pin" value="${escapeHtml(f.staticVal||'')}" onchange="sp('staticVal',this.value)" style="width:100%">
+    </div>
+    ` : ''}
+    ${isImage ? `
+    <div class="psect">
+      <div class="psect-title">الصورة</div>
+      <div style="background:var(--s3);border-radius:8px;padding:10px;margin-bottom:10px;text-align:center">
+        ${f.imageData ? `<img src="${f.imageData}" style="max-width:100%;max-height:100px;border-radius:6px">` : '<div style="color:var(--tx3)">لا توجد صورة</div>'}
+      </div>
+      <button class="btn btn-ghost" style="width:100%" onclick="changeImage('${f.id}')">🖼 تغيير الصورة</button>
+    </div>
+    ` : ''}
+    <div class="psect">
+      <div class="psect-title">النوع</div>
+      <select class="pin" style="width:100%" onchange="sp('type',this.value);renderProps()">
+        <option value="text"${f.type==='text'?' selected':''}>نص ديناميكي</option>
+        <option value="price"${f.type==='price'?' selected':''}>سعر</option>
+        <option value="price_strike"${f.type==='price_strike'?' selected':''}>سعر مشطوب</option>
+        <option value="barcode"${f.type==='barcode'?' selected':''}>باركود</option>
+        <option value="static_label"${f.type==='static_label'?' selected':''}>نص مساعد (ثابت)</option>
+        <option value="image"${f.type==='image'?' selected':''}>صورة</option>
+      </select>
+    </div>
+    ${!isBC && !isImage ? `
+    <div class="psect">
+      <div class="psect-title">المظهر</div>
+      <div class="prow"><span class="plbl">حجم الخط</span><input class="pin" type="number" value="${f.size}" onchange="sp('size',+this.value)"></div>
+      <div class="prow"><span class="plbl">اللون</span><input class="pin" type="color" value="${f.color}" onchange="sp('color',this.value)"></div>
+      <div class="prow"><span class="plbl">عريض</span>
+        <select class="pin" onchange="sp('bold',this.value==='true')">
+          <option value="true"${f.bold?' selected':''}>نعم</option>
+          <option value="false"${!f.bold?' selected':''}>لا</option>
+        </select>
+      </div>
+    </div>`:''}
+    <button class="btn btn-err" style="width:100%;margin-top:6px" onclick="deleteField('${f.id}')">🗑 حذف الحقل</button>
+  `;
+}
+
+function sp(k,v){ const f=fields.find(x=>x.id===selectedId); if(!f)return; f[k]=v; renderAll(); }
+
+// ══════════════════════════════════════════
+//  ADD FIELD / LABEL / IMAGE
+// ══════════════════════════════════════════
+function openAddField(){ populateCols(); $('af-name').value=''; $('af-col-m').value=''; $('add-modal').classList.add('open'); }
+function toggleAfType(){ const t=$('af-type').value; $('af-style').style.display=t==='barcode'?'none':''; }
+
+function confirmAddField(){
+  if(!templateImg){toast('ارفع القالب أولاً','err');closeModal('add-modal');return;}
+  const name=$('af-name').value.trim(); if(!name){toast('أدخل اسم الحقل','err');return;}
+  const col=$('af-col').value||$('af-col-m').value.trim();
+  const type=$('af-type').value;
+  const size=+$('af-size').value||30;
+  const color=$('af-color').value;
+  const bold=$('af-bold').value==='true';
+  const f={id:uid(),name,col,type,x:Math.round(cW/2-110),y:Math.round(cH/2-25),w:type==='barcode'?250:220,h:type==='barcode'?55:size*1.8,size,color,bold,staticVal:'',imageData:''};
+  fields.push(f); closeModal('add-modal'); selectField(f.id); renderAll(); updateStats(); toast(`تمت إضافة "${name}"`, 'ok');
+}
+
+function openAddLabel(){
+  $('label-text').value='';
+  $('label-name').value='';
+  $('add-label-modal').classList.add('open');
+}
+
+function confirmAddLabel(){
+  if(!templateImg){toast('ارفع القالب أولاً','err');closeModal('add-label-modal');return;}
+  const text=$('label-text').value.trim(); if(!text){toast('أدخل النص','err');return;}
+  const name=$('label-name').value.trim() || text;
+  const size=+$('label-size').value||28;
+  const color=$('label-color').value;
+  const bold=$('label-bold').value==='true';
+  const f={id:uid(),name:name,col:'',type:'static_label',x:Math.round(cW/2-80),y:Math.round(cH/2-20),w:160,h:size*1.3,size,color,bold,staticVal:text,imageData:''};
+  fields.push(f); closeModal('add-label-modal'); selectField(f.id); renderAll(); updateStats(); toast(`تمت إضافة النص "${text}"`, 'ok');
+}
+
+function openAddImage(){
+  $('image-name').value='';
+  $('image-width').value=150;
+  $('image-height').value=150;
+  $('image-preview').innerHTML='';
+  pendingImageData = null;
+  $('add-image-modal').classList.add('open');
+}
+
+function previewImage(){
+  const f=$('image-file').files[0];
+  if(!f)return;
+  const r=new FileReader();
+  r.onload=ev=>{
+    pendingImageData = ev.target.result;
+    $('image-preview').innerHTML=`<img src="${ev.target.result}" style="max-width:100%;max-height:150px;border-radius:8px">`;
+  };
+  r.readAsDataURL(f);
+}
+
+function confirmAddImage(){
+  if(!templateImg){toast('ارفع القالب أولاً','err');closeModal('add-image-modal');return;}
+  if(!pendingImageData){toast('اختر صورة أولاً','err');return;}
+  const name=$('image-name').value.trim() || 'صورة';
+  const w=parseInt($('image-width').value) || 150;
+  const h=parseInt($('image-height').value) || 150;
+  const f={id:uid(),name:name,col:'',type:'image',x:Math.round(cW/2-w/2),y:Math.round(cH/2-h/2),w:w,h:h,size:0,color:'#000000',bold:false,staticVal:'',imageData:pendingImageData};
+  fields.push(f); closeModal('add-image-modal'); selectField(f.id); renderAll(); updateStats(); toast(`تمت إضافة الصورة "${name}"`, 'ok');
+}
+
+function changeImage(fieldId){
+  const f=fields.find(x=>x.id===fieldId);
+  if(!f)return;
+  const input=document.createElement('input');
+  input.type='file';
+  input.accept='image/*';
+  input.onchange=e=>{
+    const file=e.target.files[0];
+    if(file){
+      const r=new FileReader();
+      r.onload=ev=>{
+        f.imageData=ev.target.result;
+        renderAll();
+        toast('تم تحديث الصورة','ok');
+      };
+      r.readAsDataURL(file);
+    }
+  };
+  input.click();
+}
+
+// ══════════════════════════════════════════
+//  PREVIEW & EXPORT
+// ══════════════════════════════════════════
+async function requestPreview(){
+  if(!serverOnline){toast('السيرفر غير متصل','err');return;}
+  if(!templateDataURL){toast('ارفع القالب أولاً','err');return;}
+  try{
+    showProg('جاري المعاينة...','');
+    const resp=await fetch(API+'/preview',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        template: templateDataURL,
+        fields: fields,
+        row: excelData.length?excelData[0]:{}
+      })
+    });
+    hideProg();
+    if(!resp.ok){ const e=await resp.json(); toast('خطأ: '+e.error,'err'); return; }
+    const data=await resp.json();
+    const img=new Image();
+    img.onload=()=>{
+      const cv=$('cv'), ctx=cv.getContext('2d');
+      ctx.clearRect(0,0,cW,cH);
+      ctx.drawImage(img,0,0,cW,cH);
+    };
+    img.src=data.image;
+    toast('معاينة من السيرفر ✓','ok');
+  }catch(e){
+    hideProg();
+    toast('تعذر الاتصال بالسيرفر','err');
+  }
+}
+
+async function exportZip(){
+  if(!templateDataURL){toast('ارفع القالب أولاً','err');return;}
+  if(!fields.length){toast('أضف حقلاً على الأقل','err');return;}
+  const rows = excelData.length ? excelData : [{}];
+  showProg('جاري التصدير...',`0 / ${rows.length}`);
+  setProg(10);
+  try{
+    const resp = await fetch(API+'/generate',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ template: templateDataURL, fields: fields, rows: rows })
+    });
+    setProg(80);
+    if(!resp.ok){ const err=await resp.json(); hideProg(); toast('خطأ: '+err.error,'err'); return; }
+    const blob=await resp.blob();
+    setProg(100);
+    hideProg();
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url; a.download='price-cards.zip'; a.click();
+    URL.revokeObjectURL(url);
+    toast(`تم تصدير ${rows.length} كرت ✓`,'ok');
+  }catch(e){ hideProg(); toast('تعذر الاتصال بالسيرفر','err'); }
+}
+
+async function exportPDF(){
+  if(!serverOnline){toast('السيرفر غير متصل','err');return;}
+  if(!templateDataURL){toast('ارفع القالب أولاً','err');return;}
+  if(!fields.length){toast('أضف حقلاً على الأقل','err');return;}
+
+  const rows = excelData.length ? excelData : [{}];
+  const cardsPerPage = parseInt($('pdf-cards-per-page').value);
+  const pageSize = $('pdf-page-size').value;
+
+  showProg('جاري إنشاء PDF...',`0 / ${rows.length}`);
+  setProg(10);
+  try{
+    const resp = await fetch(API+'/generate-pdf',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        template: templateDataURL,
+        fields: fields,
+        rows: rows,
+        cards_per_page: cardsPerPage,
+        page_size: pageSize
+      })
+    });
+    setProg(80);
+    if(!resp.ok){ const err=await resp.json(); hideProg(); toast('خطأ: '+err.error,'err'); return; }
+    const blob=await resp.blob();
+    setProg(100);
+    hideProg();
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url; a.download='price-cards.pdf'; a.click();
+    URL.revokeObjectURL(url);
+    toast(`تم تصدير ${rows.length} كرت في PDF ✓`,'ok');
+  }catch(e){ hideProg(); toast('تعذر الاتصال بالسيرفر','err'); }
+}
+
+// ══════════════════════════════════════════
+//  PRESETS (حفظ واسترجاع التصاميم)
+// ══════════════════════════════════════════
+const SK='pricecards_v5';
+
+function getPresets(){
+  try{
+    const saved = localStorage.getItem(SK);
+    return saved ? JSON.parse(saved) : [];
+  }catch{
+    return [];
+  }
+}
+
+function setPresets(a){
+  localStorage.setItem(SK,JSON.stringify(a));
+}
+
+function savePreset(){
+  if(!templateImg){
+    toast('ارفع قالب أولاً','err');
+    return;
+  }
+  $('preset-name').value = '';
+  $('save-modal').classList.add('open');
+}
+
+function confirmSave(){
+  const name = $('preset-name').value.trim();
+  if(!name){
+    toast('أدخل اسماً للتصميم','err');
+    return;
+  }
+
+  // التحقق من وجود تصميم بنفس الاسم
+  const existing = getPresets().find(p => p.name === name && p.id !== 'autosave');
+  if(existing){
+    if(!confirm(`يوجد تصميم باسم "${name}" بالفعل. هل تريد استبداله؟`)){
+      return;
+    }
+    setPresets(getPresets().filter(p => p.name !== name || p.id === 'autosave'));
+  }
+
+  const p = {
+    id: uid(),
+    name: name,
+    savedAt: new Date().toLocaleString('ar-SA'),
+    fields: JSON.parse(JSON.stringify(fields)),
+    templateDataURL: templateDataURL,
+    cW: cW,
+    cH: cH,
+    autoSaved: false
+  };
+
+  const all = getPresets().filter(p => p.id !== 'autosave');
+  all.unshift(p);
+  setPresets(all);
+
+  closeModal('save-modal');
+  toast(`تم حفظ "${name}" ✓ يمكنك استرجاعه من 📁 القوالب المحفوظة`, 'ok');
+}
+
+function openPresets(){
+  renderPresetsList();
+  $('presets-modal').classList.add('open');
+}
+
+function renderPresetsList(){
+  const all = getPresets();
+  const c = $('presets-list');
+
+  if(!all.length){
+    c.innerHTML = `
+      <div style="color:var(--tx3);text-align:center;padding:30px">
+        📭 لا توجد تصاميم محفوظة<br>
+        <span style="font-size:11px;margin-top:8px;display:block">انقر 💾 حفظ التصميم لحفظ العمل الحالي</span>
+      </div>
+    `;
+    return;
+  }
+
+  // فصل الحفظ التلقائي
+  const autoSave = all.find(p => p.id === 'autosave');
+  const manualPresets = all.filter(p => p.id !== 'autosave');
+
+  let html = '';
+
+  // عرض الحفظ التلقائي
+  if(autoSave && autoSave.fields && autoSave.fields.length > 0){
+    html += `
+      <div style="margin-bottom:20px">
+        <div style="font-size:11px;color:var(--acc);margin-bottom:10px;display:flex;align-items:center;gap:6px">
+          <span>💾</span> آخر تصميم (حفظ تلقائي)
+        </div>
+        <div class="pitem" style="background:rgba(61,204,122,0.1);border-color:var(--ok)">
+          <div style="font-size:28px">💾</div>
+          <div class="pinfo">
+            <div class="pname" style="color:var(--ok)">${escapeHtml(autoSave.name || 'آخر تصميم')}</div>
+            <div class="pmeta">📅 ${autoSave.savedAt || 'وقت غير محدد'}</div>
+            <div class="pmeta">📊 ${autoSave.fields?.length || 0} حقل</div>
+          </div>
+          <div>
+            <button class="mbtn" onclick="loadPreset('${autoSave.id}')" style="background:var(--ok);color:#000">تحميل</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // عرض التصميمات المحفوظة يدوياً
+  if(manualPresets.length){
+    html += `
+      <div style="margin-bottom:10px">
+        <div style="font-size:11px;color:var(--tx2);margin-bottom:10px;display:flex;align-items:center;gap:6px">
+          <span>📁</span> تصاميمك المحفوظة (${manualPresets.length})
+        </div>
+    `;
+
+    html += manualPresets.map(p => `
+      <div class="pitem">
+        <div style="font-size:24px">📋</div>
+        <div class="pinfo">
+          <div class="pname">${escapeHtml(p.name)}</div>
+          <div class="pmeta">📅 ${p.savedAt || 'تاريخ غير محدد'}</div>
+          <div class="pmeta">📊 ${p.fields?.length || 0} حقل</div>
+          <div class="pmeta">🖼 ${p.templateDataURL ? '✅ قالب موجود' : '❌ لا يوجد قالب'}</div>
+        </div>
+        <div style="display:flex;gap:5px;flex-wrap:wrap">
+          <button class="mbtn" onclick="loadPreset('${p.id}')" title="تحميل التصميم">📂 تحميل</button>
+          <button class="mbtn" onclick="exportPresetJson('${p.id}')" title="تصدير كملف">📤 تصدير</button>
+          <button class="mbtn del" onclick="delPreset('${p.id}')" title="حذف التصميم">🗑 حذف</button>
+        </div>
+      </div>
+    `).join('');
+
+    html += `</div>`;
+  }
+
+  c.innerHTML = html;
+}
+
+function loadPreset(id){
+  const p = getPresets().find(x => x.id === id);
+  if(!p) return;
+
+  fields = JSON.parse(JSON.stringify(p.fields || []));
+
+  if(p.templateDataURL){
+    const img = new Image();
+    img.onload = () => {
+      templateImg = img;
+      templateDataURL = p.templateDataURL;
+      cW = p.cW || img.width;
+      cH = p.cH || img.height;
+      initCanvas();
+      renderAll();
+      updateStats();
+      toast(`تم تحميل "${p.name}" ✓`, 'ok');
+    };
+    img.src = p.templateDataURL;
+  } else {
+    renderAll();
+    updateStats();
+    toast(`تم تحميل "${p.name}" (بدون قالب)`, 'ok');
+  }
+
+  closeModal('presets-modal');
+}
+
+function delPreset(id){
+  if(confirm('هل أنت متأكد من حذف هذا التصميم؟')){
+    setPresets(getPresets().filter(x => x.id !== id));
+    renderPresetsList();
+    toast('تم حذف التصميم', 'ok');
+  }
+}
+
+function exportPresetJson(id){
+  const p = getPresets().find(x => x.id === id);
+  if(!p) return;
+  const a = document.createElement('a');
+  const data = JSON.stringify(p, null, 2);
+  a.href = URL.createObjectURL(new Blob([data], {type:'application/json'}));
+  a.download = `preset-${p.name.replace(/[^a-z0-9]/gi, '_')}.json`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+  toast('تم تصدير التصميم كملف JSON', 'ok');
+}
+
+function importPreset(e){
+  const r = new FileReader();
+  r.onload = ev => {
+    try{
+      const p = JSON.parse(ev.target.result);
+      if(!p.fields) throw new Error('ملف غير صالح');
+      if(!p.id) p.id = uid();
+      if(!p.savedAt) p.savedAt = new Date().toLocaleString('ar-SA');
+      const all = getPresets().filter(preset => preset.id !== 'autosave');
+      all.unshift(p);
+      setPresets(all);
+      renderPresetsList();
+      toast('تم استيراد التصميم ✓', 'ok');
+    } catch(err){
+      toast('ملف غير صالح', 'err');
+    }
+  };
+  r.readAsText(e.target.files[0]);
+}
+
+// ══════════════════════════════════════════
+//  AUTO-SAVE (حفظ تلقائي)
+// ══════════════════════════════════════════
+let lastAutoSave = null;
+
+function autoSave(){
+  if(!templateImg) return;
+
+  const currentDesign = {
+    id: 'autosave',
+    name: 'آخر تصميم (حفظ تلقائي)',
+    savedAt: new Date().toLocaleString('ar-SA'),
+    fields: JSON.parse(JSON.stringify(fields)),
+    templateDataURL: templateDataURL,
+    cW: cW,
+    cH: cH,
+    autoSaved: true
+  };
+
+  const allPresets = getPresets();
+  const autoSaveIndex = allPresets.findIndex(p => p.id === 'autosave');
+
+  if(autoSaveIndex !== -1){
+    allPresets[autoSaveIndex] = currentDesign;
+  } else {
+    allPresets.unshift(currentDesign);
+  }
+
+  setPresets(allPresets);
+
+  const now = new Date();
+  if(!lastAutoSave || (now - lastAutoSave) > 10000){
+    toast('💾 تم الحفظ التلقائي', 'ok');
+    lastAutoSave = now;
+  }
+}
+
+// تفعيل الحفظ التلقائي كل 10 ثواني
+setInterval(autoSave, 10000);
+
+// حفظ عند الإغلاق
+window.addEventListener('beforeunload', () => {
+  if(templateImg){
+    autoSave();
+  }
+});
+
+// تحميل آخر تصميم تلقائياً
+function loadLastDesign(){
+  const presets = getPresets();
+  const autoSave = presets.find(p => p.id === 'autosave');
+
+  if(autoSave && autoSave.fields && autoSave.fields.length > 0){
+    if(confirm(`هل تريد استعادة آخر تصميم؟\n\n${autoSave.savedAt}\n${autoSave.fields.length} حقل`)){
+      loadPresetData(autoSave);
+      toast('تم استعادة آخر تصميم تلقائياً ✓', 'ok');
+      return true;
+    }
+  }
+  return false;
+}
+
+function loadPresetData(preset){
+  fields = JSON.parse(JSON.stringify(preset.fields || []));
+  if(preset.templateDataURL){
+    const img = new Image();
+    img.onload = () => {
+      templateImg = img;
+      templateDataURL = preset.templateDataURL;
+      cW = preset.cW || img.width;
+      cH = preset.cH || img.height;
+      initCanvas();
+      renderAll();
+      updateStats();
+    };
+    img.src = preset.templateDataURL;
+  } else {
+    renderAll();
+    updateStats();
+  }
+}
+
+// تحميل آخر تصميم بعد 1 ثانية
+setTimeout(() => {
+  if(!templateImg){
+    loadLastDesign();
+  }
+}, 1000);
+
+// ══════════════════════════════════════════
+//  UI HELPERS
+// ══════════════════════════════════════════
+function sTab(t){
+  ['fields','props','data','pdf'].forEach(x=>{
+    $('sp-'+x).style.display = x===t ? '' : 'none';
+    $('stab-'+x).classList.toggle('on', x===t);
+  });
+}
+
+function closeModal(id){ $(id).classList.remove('open'); }
+
+function setZoom(z){
+  zoom = Math.max(.25, Math.min(2.5, z));
+  $('zlbl').textContent = Math.round(zoom*100)+'%';
+  applyZoom();
+}
+
+function applyZoom(){
+  const w = $('cwrap');
+  w.style.transform = `scale(${zoom})`;
+  w.style.transformOrigin = 'center center';
+}
+
+function uid(){
+  return Date.now().toString(36) + Math.random().toString(36).slice(2,6);
+}
+
+function escapeHtml(str){
+  if(!str) return '';
+  return str.replace(/[&<>]/g, function(m){
+    if(m === '&') return '&amp;';
+    if(m === '<') return '&lt;';
+    if(m === '>') return '&gt;';
+    return m;
+  });
+}
+
+function showProg(title,lbl){
+  $('prog-title').textContent = title;
+  $('prog-lbl').textContent = lbl;
+  $('prog-bar').style.width = '0%';
+  $('prog-wrap').classList.add('open');
+}
+
+function hideProg(){
+  $('prog-wrap').classList.remove('open');
+}
+
+function setProg(p){
+  $('prog-bar').style.width = p+'%';
+}
+
+function toast(msg,type='ok'){
+  const t = $('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + (type==='err' ? 'err-t' : 'ok-t');
+  setTimeout(() => t.className = 'toast', 2800);
+}
+
+document.addEventListener('keydown', e => {
+  if(!selectedId) return;
+  const f = fields.find(x => x.id === selectedId);
+  if(!f) return;
+  if(document.activeElement !== document.body && document.activeElement?.tagName !== 'CANVAS') return;
+  const s = e.shiftKey ? 10 : 1;
+  if(e.key === 'ArrowLeft'){ f.x -= s; e.preventDefault(); }
+  if(e.key === 'ArrowRight'){ f.x += s; e.preventDefault(); }
+  if(e.key === 'ArrowUp'){ f.y -= s; e.preventDefault(); }
+  if(e.key === 'ArrowDown'){ f.y += s; e.preventDefault(); }
+  if((e.key === 'Delete' || e.key === 'Backspace') && document.activeElement === document.body) deleteField(selectedId);
+  renderAll();
+});
+</script>
+</body>
+</html>
