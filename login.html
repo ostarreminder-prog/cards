@@ -5,162 +5,25 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>تسجيل الدخول - مصمم كروت الأسعار</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap');
 *{margin:0;padding:0;box-sizing:border-box}
-:root{
-  --bg:#111318;--s1:#181c24;--s2:#1f2330;--s3:#262d3d;
-  --br:#2a3045;--br2:#3a4460;
-  --acc:#f0c040;--acc2:#e05c30;--acc3:#4db8ff;
-  --tx:#dde2f0;--tx2:#8892b0;--tx3:#4a5270;
-  --ok:#3dcc7a;--err:#ff5252;--r:12px;
-}
-body{
-  background:var(--bg);
-  color:var(--tx);
-  font-family:'Cairo',sans-serif;
-  min-height:100vh;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  background-image:radial-gradient(circle at 30% 20%,rgba(240,192,64,.08) 0%,transparent 50%),
-                   radial-gradient(circle at 70% 80%,rgba(77,184,255,.06) 0%,transparent 50%);
-}
-.login-box{
-  background:var(--s1);
-  border:1px solid var(--br);
-  border-radius:var(--r);
-  padding:40px;
-  width:380px;
-  box-shadow:0 20px 60px rgba(0,0,0,.5);
-}
-.logo{
-  text-align:center;
-  margin-bottom:30px;
-}
-.logo-icon{
-  width:60px;
-  height:60px;
-  background:linear-gradient(135deg,var(--acc),var(--acc2));
-  border-radius:16px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  margin:0 auto 15px;
-  font-size:28px;
-}
-.logo h1{
-  font-size:20px;
-  font-weight:800;
-  color:var(--acc);
-}
-.logo p{
-  font-size:13px;
-  color:var(--tx2);
-  margin-top:5px;
-}
-.form-group{
-  margin-bottom:20px;
-}
-.form-group label{
-  display:block;
-  font-size:12px;
-  font-weight:600;
-  color:var(--tx2);
-  margin-bottom:8px;
-}
-.form-group input{
-  width:100%;
-  background:var(--s2);
-  border:1.5px solid var(--br);
-  border-radius:8px;
-  padding:14px 16px;
-  color:var(--tx);
-  font-family:'Cairo',sans-serif;
-  font-size:15px;
-  outline:none;
-  transition:.2s;
-  text-align:center;
-  letter-spacing:1px;
-}
-.form-group input:focus{
-  border-color:var(--acc);
-  background:var(--s3);
-}
-.form-group input::placeholder{
-  color:var(--tx3);
-  letter-spacing:normal;
-}
-.password-hint{
-  font-size:11px;
-  color:var(--tx3);
-  margin-top:6px;
-  text-align:center;
-}
-.btn-login{
-  width:100%;
-  background:var(--acc);
-  color:#111;
-  border:none;
-  border-radius:8px;
-  padding:14px;
-  font-family:'Cairo',sans-serif;
-  font-size:15px;
-  font-weight:700;
-  cursor:pointer;
-  transition:.2s;
-  margin-top:10px;
-}
-.btn-login:hover{
-  background:#ffd860;
-  transform:translateY(-2px);
-  box-shadow:0 8px 25px rgba(240,192,64,.3);
-}
-.btn-login:disabled{
-  opacity:.5;
-  cursor:not-allowed;
-  transform:none;
-  box-shadow:none;
-}
-.error-msg{
-  background:rgba(255,82,82,.1);
-  border:1px solid rgba(255,82,82,.3);
-  border-radius:8px;
-  padding:12px;
-  font-size:13px;
-  color:var(--err);
-  text-align:center;
-  margin-top:15px;
-  display:none;
-}
-.error-msg.show{
-  display:block;
-}
-.security-badge{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:8px;
-  margin-top:25px;
-  padding-top:20px;
-  border-top:1px solid var(--br);
-  font-size:12px;
-  color:var(--tx3);
-}
-.security-badge span{
-  color:var(--ok);
-}
-.loading{
-  display:none;
-  width:20px;
-  height:20px;
-  border:2px solid #111;
-  border-top-color:transparent;
-  border-radius:50%;
-  animation:spin .8s linear infinite;
-}
-@keyframes spin{
-  to{transform:rotate(360deg)}
-}
+body{background:#fff;font-family:'Cairo',sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center}
+.login-box{width:360px;padding:40px 36px}
+.logo{text-align:center;margin-bottom:32px}
+.logo-icon{font-size:40px;margin-bottom:10px}
+.logo h1{font-size:20px;font-weight:800;color:#111}
+.form-group{margin-bottom:18px}
+.form-group label{display:block;font-size:13px;font-weight:600;color:#555;margin-bottom:7px}
+.form-group input{width:100%;border:1.5px solid #ddd;border-radius:8px;padding:13px 16px;color:#111;font-family:'Cairo',sans-serif;font-size:15px;outline:none;transition:.2s;text-align:center;background:#fafafa}
+.form-group input:focus{border-color:#111;background:#fff}
+.form-group input::placeholder{color:#bbb}
+.btn-login{width:100%;background:#111;color:#fff;border:none;border-radius:8px;padding:14px;font-family:'Cairo',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:.2s;margin-top:8px}
+.btn-login:hover{background:#333}
+.btn-login:disabled{opacity:.4;cursor:not-allowed}
+.error-msg{background:#fff0f0;border:1px solid #fcc;border-radius:8px;padding:11px;font-size:13px;color:#c00;text-align:center;margin-top:14px;display:none}
+.error-msg.show{display:block}
+.loading{display:none;width:18px;height:18px;border:2px solid #fff;border-top-color:transparent;border-radius:50%;animation:spin .8s linear infinite;margin:0 auto}
+@keyframes spin{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
@@ -169,7 +32,6 @@ body{
   <div class="logo">
     <div class="logo-icon">🎴</div>
     <h1>مصمم كروت الأسعار</h1>
-    <p>نظام إدارة وتصميم الكروت الاحترافي</p>
   </div>
   
   <form id="loginForm">
@@ -191,11 +53,6 @@ body{
     
     <div class="error-msg" id="errorMsg"></div>
   </form>
-  
-  <div class="security-badge">
-    <span>🔒</span>
-    <span>نظام محمي بتشفير كامل</span>
-  </div>
 </div>
 
 <script>
