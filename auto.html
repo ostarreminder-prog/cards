@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>نظام تلقائي - كروت الأسعار</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#f8fafc;--s1:#ffffff;--s2:#f1f5f9;--s3:#e2e8f0;
+  --br:#cbd5e1;--br2:#94a3b8;--acc:#f59e0b;--acc2:#ea580c;
+  --tx:#1e293b;--tx2:#64748b;--tx3:#94a3b8;
+  --ok:#22c55e;--err:#ef4444;--r:12px;
+}
+body{background:var(--bg);color:var(--tx);font-family:'Cairo',sans-serif;min-height:100vh}
+.hdr{background:var(--s1);border-bottom:1px solid var(--br);padding:15px 30px;display:flex;align-items:center;gap:20px;position:sticky;top:0;z-index:100;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.hdr-logo{font-size:20px;font-weight:800;color:var(--acc)}
+.hdr-logo small{color:var(--tx2);font-weight:400;font-size:13px;margin-right:10px}
+.nav-link{color:var(--tx2);font-size:14px;padding:8px 16px;border-radius:8px;cursor:pointer;transition:.2s;text-decoration:none}
+.nav-link:hover{color:var(--tx);background:var(--s2)}
+.nav-link.active{color:var(--acc);background:rgba(245,158,11,.1);font-weight:700}
+.user-info{margin-right:auto;display:flex;align-items:center;gap:10px;font-size:13px;color:var(--tx2)}
+.container{max-width:1600px;margin:0 auto;padding:30px}
+.steps{display:flex;gap:20px;margin-bottom:30px}
+.step{flex:1;background:var(--s1);border:2px solid var(--br);border-radius:var(--r);padding:20px;text-align:center}
+.step.active{border-color:var(--acc);background:rgba(245,158,11,.05)}
+.step.completed{border-color:var(--ok);background:rgba(34,197,94,.05)}
+.step-num{width:35px;height:35px;background:var(--s3);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;margin:0 auto 10px;color:var(--tx2)}
+.step.active .step-num{background:var(--acc);color:#fff}
+.step.completed .step-num{background:var(--ok);color:#fff}
+.step-title{font-weight:700;margin-bottom:5px}
+.step-desc{font-size:12px;color:var(--tx2)}
+.card{background:var(--s1);border:1px solid var(--br);border-radius:var(--r);padding:25px;margin-bottom:25px;box-shadow:0 1px 3px rgba(0,0,0,.03)}
+.card-title{font-size:18px;font-weight:700;margin-bottom:20px;display:flex;align-items:center;gap:10px}
+.card-title-icon{width:40px;height:40px;background:var(--s2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px}
+.input-group{display:flex;gap:12px;margin-bottom:15px;align-items:center}
+.input{flex:1;background:var(--s1);border:2px solid var(--br);border-radius:10px;padding:14px 18px;color:var(--tx);font-family:'Cairo',sans-serif;font-size:15px;outline:none;transition:.2s}
+.input:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(245,158,11,.1)}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:14px 28px;border-radius:10px;font-family:'Cairo',sans-serif;font-size:15px;font-weight:700;cursor:pointer;border:none;transition:.2s}
+.btn-acc{background:var(--acc);color:#fff}
+.btn-acc:hover{background:var(--acc2);transform:translateY(-2px);box-shadow:0 4px 15px rgba(245,158,11,.3)}
+.btn-ghost{background:var(--s2);color:var(--tx2);border:2px solid var(--br)}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.stats-bar{display:flex;gap:30px;background:var(--s2);padding:20px 25px;border-radius:10px;margin-bottom:25px}
+.stat{display:flex;align-items:center;gap:10px}
+.stat-value{font-size:28px;font-weight:800;color:var(--acc)}
+.stat-label{font-size:14px;color:var(--tx2)}
+.products-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;padding-bottom:15px;border-bottom:1px solid var(--br)}
+.products-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:15px;max-height:600px;overflow-y:auto;padding-right:5px}
+.product-card{background:var(--s1);border:2px solid var(--br);border-radius:10px;padding:18px;cursor:pointer;transition:.2s;position:relative}
+.product-card:hover{border-color:var(--br2);box-shadow:0 2px 8px rgba(0,0,0,.05)}
+.product-card.selected{border-color:var(--ok);background:rgba(34,197,94,.03)}
+.product-check{position:absolute;top:12px;left:12px;width:26px;height:26px;border:2px solid var(--br);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff;transition:.2s}
+.product-card.selected .product-check{background:var(--ok);border-color:var(--ok)}
+.product-name{font-weight:700;font-size:15px;margin-bottom:8px;padding-left:35px}
+.product-price{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.price-current{background:var(--acc);color:#fff;padding:4px 12px;border-radius:20px;font-weight:700;font-size:14px}
+.price-old{text-decoration:line-through;color:var(--err);font-size:13px}
+.product-model{font-size:12px;color:var(--tx2);background:var(--s2);padding:4px 10px;border-radius:6px;display:inline-block}
+.template-selector{margin-top:12px;padding-top:12px;border-top:1px solid var(--br);display:flex;gap:8px}
+.template-btn{flex:1;padding:8px 12px;border:2px solid var(--br);border-radius:8px;background:var(--s1);cursor:pointer;font-size:12px;font-weight:600;color:var(--tx2);transition:.2s}
+.template-btn.selected{border-color:var(--acc);background:rgba(245,158,11,.1);color:var(--acc)}
+.export-options{display:flex;gap:15px;justify-content:center;margin-top:30px}
+.export-card{background:var(--s2);border:2px solid var(--br);border-radius:12px;padding:25px 40px;text-align:center;cursor:pointer;transition:.2s;min-width:200px}
+.export-card.selected{border-color:var(--acc);background:rgba(245,158,11,.05)}
+.export-icon{font-size:40px;margin-bottom:10px}
+.export-title{font-weight:700;margin-bottom:5px}
+.export-desc{font-size:12px;color:var(--tx2)}
+.loading-overlay{display:none;position:fixed;inset:0;background:rgba(255,255,255,.9);z-index:1000;align-items:center;justify-content:center;flex-direction:column;gap:20px}
+.loading-overlay.show{display:flex}
+.spinner{width:60px;height:60px;border:4px solid var(--br);border-top-color:var(--acc);border-radius:50%;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-text{font-size:18px;color:var(--tx2);font-weight:600}
+.loading-progress{width:300px;height:8px;background:var(--br);border-radius:4px;overflow:hidden}
+.loading-progress-bar{height:100%;background:var(--acc);width:0%;transition:width .3s}
+.empty-state{text-align:center;padding:80px;color:var(--tx2)}
+.empty-icon{font-size:80px;margin-bottom:20px;opacity:.5}
+.alert{padding:15px 20px;border-radius:10px;margin-bottom:20px;display:none;font-weight:600}
+.alert.show{display:block}
+.alert-err{background:#fef2f2;color:var(--err);border:1px solid #fecaca}
+.alert-ok{background:#f0fdf4;color:var(--ok);border:1px solid #bbf7d0}
+.alert-warn{background:#fffbeb;color:#d97706;border:1px solid #fcd34d}
+.product-card.hidden{display:none}
+.product-card .product-actions{display:none;gap:5px;margin-top:8px}
+.product-card.selected .product-actions{display:flex}
+.product-action-btn{padding:4px 8px;font-size:11px;border:1px solid var(--br);border-radius:4px;background:var(--s1);cursor:pointer}
+.product-action-btn:hover{background:var(--acc);color:white;border-color:var(--acc)}
+.product-action-btn.hide-btn{color:#dc2626}
+.product-action-btn.hide-btn:hover{background:#dc2626}
+.product-card.updated{border:2px solid #d97706!important;background:#fffbeb!important;box-shadow:0 0 10px rgba(217,119,6,0.3)!important}
+.product-updated-badge{display:inline-block;background:#d97706;color:white;font-size:10px;padding:2px 8px;border-radius:4px;margin-bottom:5px}
+.product-last-updated{font-size:10px;color:#666;margin-top:4px;text-align:left;direction:ltr}
+.product-last-updated.updated{color:#d97706;font-weight:600}
+.filter-bar{display:flex;gap:10px;margin-bottom:15px;padding:10px;background:var(--s1);border-radius:8px}
+.filter-btn{padding:6px 12px;font-size:12px;border:1px solid var(--br);border-radius:6px;background:white;cursor:pointer}
+.filter-btn.active{background:var(--acc);color:white;border-color:var(--acc)}
+.search-bar{display:flex;gap:8px;margin-bottom:15px}
+.search-input{flex:1;padding:12px 16px;font-size:14px}
+.search-highlight{background:#fef3c7;padding:2px 4px;border-radius:3px;font-weight:600}
+.no-results{text-align:center;padding:40px;color:var(--tx2);font-size:16px}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-logo">🎴 نظام كروت الأسعار</div>
+  <div class="user-info" id="userInfo"><span id="userEmail">...</span><button class="btn btn-ghost" style="padding:6px 12px;font-size:12px" onclick="logout()">خروج</button></div>
+</div>
+
+<div class="container">
+  <div class="steps">
+    <div class="step active" id="step1"><div class="step-num">1</div><div class="step-title">رفع الملف</div></div>
+    <div class="step" id="step2"><div class="step-num">2</div><div class="step-title">اختيار المنتجات</div></div>
+    <div class="step" id="step3"><div class="step-num">3</div><div class="step-title">تصدير PDF</div></div>
+  </div>
+
+  <div class="alert alert-err" id="errorAlert"></div>
+  <div class="alert alert-ok" id="successAlert"></div>
+  <div class="alert alert-warn" id="updatedAlert"></div>
+
+  <!-- Step 1: Excel Upload -->
+  <div class="card" id="card-step1">
+    <div class="card-title"><div class="card-title-icon">�</div>رفع ملف Excel</div>
+    <div id="autoLoadingStatus" style="text-align:center;padding:30px">
+      <div class="spinner" style="margin:0 auto 20px"></div>
+      <p style="color:var(--tx2)">جاري التحقق...</p>
+    </div>
+    <div style="border:2px dashed var(--brd);border-radius:12px;padding:30px;text-align:center;margin-top:10px;cursor:pointer;transition:border-color .2s" id="dropZone" onclick="document.getElementById('excelFileInput').click()" ondragover="event.preventDefault();this.style.borderColor='var(--acc)'" ondragleave="this.style.borderColor='var(--brd)'" ondrop="handleFileDrop(event)">
+      <div style="font-size:48px;margin-bottom:10px">📂</div>
+      <p style="font-size:16px;font-weight:600;margin:0 0 5px">اسحب ملف Excel هنا أو اضغط للاختيار</p>
+      <p style="font-size:12px;color:var(--tx2);margin:0">.xlsx أو .xls</p>
+      <input type="file" id="excelFileInput" accept=".xlsx,.xls" style="display:none" onchange="uploadExcel(this.files[0])">
+    </div>
+    <div id="fileInfo" style="display:none;margin-top:15px;padding:12px;background:var(--bg2);border-radius:8px;display:flex;align-items:center;gap:10px">
+      <span style="font-size:20px">📄</span>
+      <div style="flex:1">
+        <div id="fileName" style="font-weight:600"></div>
+        <div id="fileDate" style="font-size:12px;color:var(--tx2)"></div>
+      </div>
+      <button class="btn btn-ghost" onclick="document.getElementById('excelFileInput').click()">� تغيير</button>
+    </div>
+  </div>
+
+  <!-- Step 2 -->
+  <div class="card" id="card-step2" style="display:none">
+    <input type="file" id="changeFileInput" accept=".xlsx,.xls" style="display:none" onchange="uploadExcel(this.files[0])">
+    <div class="card-title" style="display:flex;align-items:center;justify-content:space-between"><div style="display:flex;align-items:center;gap:8px"><div class="card-title-icon">📋</div>اختيار المنتجات</div><div style="display:flex;align-items:center;gap:8px"><span id="sheetInfo" style="font-size:12px;color:#888"></span><button class="btn btn-ghost" style="font-size:12px;padding:5px 12px" onclick="document.getElementById('changeFileInput').click()"> 📂 تغيير الملف</button></div></div>
+    <div class="stats-bar">
+      <div class="stat"><div class="stat-value" id="totalProducts">0</div><div class="stat-label">إجمالي المنتجات</div></div>
+      <div class="stat"><div class="stat-value" id="selectedProducts">0</div><div class="stat-label">المختارة</div></div>
+      <div class="stat"><div class="stat-value" id="selectedOffers">0</div><div class="stat-label">عروض</div></div>
+    </div>
+    <div class="search-bar">
+      <input type="text" class="input search-input" id="searchInput" placeholder="🔍 البحث بالموديل أو اسم المنتج..." oninput="searchProducts(this.value)">
+      <button class="btn btn-ghost" onclick="clearSearch()">✕</button>
+    </div>
+    <div class="filter-bar">
+      <button class="filter-btn active" id="filterAll" onclick="setFilter('all')">الكل</button>
+      <button class="filter-btn" id="filterVisible" onclick="setFilter('visible')">غير مخفي</button>
+    </div>
+    <div class="products-header">
+      <div id="productsCount">جاري التحميل...</div>
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-ghost" onclick="selectAll()">✓ الكل</button>
+        <button class="btn btn-ghost" onclick="deselectAll()">✗ إلغاء</button>
+      </div>
+    </div>
+    <div class="products-grid" id="productsGrid"></div>
+    <div style="display:flex;justify-content:space-between;margin-top:20px">
+      <button class="btn btn-ghost" onclick="backToStep1()">← رجوع</button>
+      <button class="btn btn-acc" onclick="goToStep3()" id="btnContinue" disabled>متابعة →</button>
+    </div>
+  </div>
+
+  <!-- Step 3 -->
+  <div class="card" id="card-step3" style="display:none">
+    <div class="card-title"><div class="card-title-icon">📄</div>تصدير الكروت</div>
+    <div class="stats-bar">
+      <div class="stat"><div class="stat-value" id="exportCount">0</div><div class="stat-label">كرت للتصدير</div></div>
+      <div class="stat"><div class="stat-value" id="pagesCount">0</div><div class="stat-label">صفحات PDF</div></div>
+    </div>
+    <div class="export-options">
+      <div class="export-card selected">
+        <div class="export-icon">📄</div><div class="export-title">PDF للطباعة</div><div class="export-desc">6 كروت في كل صفحة</div>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:center;margin-top:30px;gap:15px">
+      <button class="btn btn-ghost" onclick="backToStep2()">← رجوع للتعديل</button>
+      <button class="btn btn-acc" onclick="generateAndDownload()" style="padding:16px 50px;font-size:18px">🚀 توليد وتحميل PDF</button>
+    </div>
+  </div>
+</div>
+
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="spinner"></div>
+  <div class="loading-text" id="loadingText">جاري المعالجة...</div>
+  <div class="loading-progress"><div class="loading-progress-bar" id="progressBar"></div></div>
+</div>
+
+<script>
+let allProducts=[],selectedProducts=new Set(),productTemplates={},currentFilter='all';
+
+checkAuth();
+async function checkAuth(){try{const r=await fetch('/api/me'),d=await r.json();if(!d.authenticated){window.location.href='/login';return}document.getElementById('userEmail').textContent=d.username||'مستخدم';autoFetchData()}catch(e){}}
+
+async function autoFetchData(){try{const r=await fetch('/api/sheets/auto-fetch?t='+Date.now(),{cache:'no-store'}),d=await r.json();if(d.error==='no_file'||d.error){document.getElementById('autoLoadingStatus').innerHTML='<p style="color:var(--tx2);font-size:15px">📂 ارفع ملف Excel للبدء</p>';return}allProducts=d.data||[];if(allProducts.length>0){console.log('📋 الأعمدة في الإكسل:',Object.keys(allProducts[0]));console.log('📝 أول منتج:',allProducts[0])}showFileInfo(d.filename,d.sheet_modified,d.count);processAndRenderProducts(d)}catch(e){document.getElementById('autoLoadingStatus').innerHTML='<p style="color:var(--err)">⚠️ فشل التحميل</p>'}}
+function showFileInfo(name,date,count){const s=document.getElementById('autoLoadingStatus');s.innerHTML='';const fi=document.getElementById('fileInfo');fi.style.display='flex';document.getElementById('fileName').textContent=(name||'products.xlsx')+' — '+count+' منتج';document.getElementById('fileDate').textContent='آخر رفع: '+(date||'—')}
+function handleFileDrop(e){e.preventDefault();document.getElementById('dropZone').style.borderColor='var(--brd)';const f=e.dataTransfer.files[0];if(f)uploadExcel(f)}
+async function uploadExcel(file){if(!file)return;const inStep2=document.getElementById('card-step2').style.display!=='none';if(!inStep2){document.getElementById('autoLoadingStatus').innerHTML='<div class="spinner" style="margin:10px auto"></div><p style="color:var(--tx2)">جاري رفع الملف...</p>';document.getElementById('fileInfo').style.display='none';}else{setLoading(true,'جاري تحميل الملف الجديد...',30);}const fd=new FormData();fd.append('file',file);try{const r=await fetch('/api/upload-excel',{method:'POST',body:fd}),d=await r.json();if(d.error){showError('❌ '+d.error);if(!inStep2)document.getElementById('autoLoadingStatus').innerHTML='<p style="color:var(--err)">'+d.error+'</p>';setLoading(false);return}allProducts=d.data||[];showFileInfo(d.filename,d.uploaded_at,d.count);processAndRenderProducts(d);showSuccess('✅ '+d.filename+' — '+d.count+' منتج');}catch(e){showError('خطأ: '+e);}finally{setLoading(false);}}
+
+async function processAndRenderProducts(d){
+  const fileInfo = d.filename ? `📊 ${d.filename}` : '📊 Excel';
+  document.getElementById('sheetInfo').textContent=`(${fileInfo} — ${d.sheet_modified||''})`;
+  selectedProducts.clear();productTemplates={};
+  allProducts.forEach((p,i)=>{if(!p._hidden)selectedProducts.add(i);productTemplates[i]=p._template_type||'products'});
+  renderProducts();updateStats();
+  document.getElementById('card-step1').style.display='none';
+  document.getElementById('card-step2').style.display='';
+  document.getElementById('step1').classList.remove('active');
+  document.getElementById('step1').classList.add('completed');
+  document.getElementById('step2').classList.add('active');
+  showSuccess(`✓ ${allProducts.length} منتج`);
+}
+
+function setFilter(f){currentFilter=f;['filterAll','filterVisible'].forEach(id=>document.getElementById(id).classList.remove('active'));document.getElementById('filter'+f.charAt(0).toUpperCase()+f.slice(1)).classList.add('active');renderProducts()}
+
+let currentSearch='';
+function searchProducts(query){currentSearch=query.toLowerCase().trim();renderProducts()}
+function clearSearch(){document.getElementById('searchInput').value='';currentSearch='';renderProducts()}
+
+async function hideProduct(i,event){event.stopPropagation();const p=allProducts[i];await fetch('/api/products/hide',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({product:p})});p._hidden=true;selectedProducts.delete(i);renderProducts();updateStats();showSuccess('✓ تم إخفاء المنتج')}
+
+async function unhideProduct(i,event){event.stopPropagation();const p=allProducts[i];await fetch('/api/products/unhide',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({product:p})});p._hidden=false;renderProducts();updateStats();showSuccess('✓ تم إظهار المنتج')}
+
+async function resetTracking(){if(!confirm('سيتم إعادة ضبط نقطة المقارنة بالبيانات الحالية من Google Sheets.\nكل المنتجات ستظهر كـ "جديد" مرة واحدة، ثم يبدأ تتبع التغييرات من الآن.\n\nهل تريد المتابعة؟'))return;try{const r=await fetch('/api/products/reset',{method:'POST'});const d=await r.json();if(d.success){showSuccess('✅ تم إعادة الضبط - جاري إعادة تحميل البيانات...');setTimeout(()=>autoFetchData(),1000)}else{showError('فشل: '+d.error)}}catch(e){showError('خطأ: '+e)}}
+async function showHiddenProducts(){const r=await fetch('/api/products/hidden'),d=await r.json();if(d.data&&Object.keys(d.data).length>0){const list=Object.values(d.data).map(p=>p['اسم الصنف']||'—').join('<br>');showSuccess(`👁️ ${d.count} منتج مخفي:<br><small>${list}</small>`)}else{showSuccess('لا يوجد منتجات مخفية')}}
+async function logout(){await fetch('/logout');window.location.href='/login'}
+function showError(m){const a=document.getElementById('errorAlert');a.textContent=m;a.classList.add('show');setTimeout(()=>a.classList.remove('show'),5000)}
+function showSuccess(m){const a=document.getElementById('successAlert');a.textContent=m;a.classList.add('show');setTimeout(()=>a.classList.remove('show'),3000)}
+function setLoading(s,t='جاري...',p=0){document.getElementById('loadingOverlay').classList.toggle('show',s);document.getElementById('loadingText').textContent=t;document.getElementById('progressBar').style.width=p+'%'}
+function extractSheetId(u){const m=u.match(/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);return m?m[1]:null}
+async function fetchData(){const u=document.getElementById('sheetUrl').value.trim(),sid=u?extractSheetId(u):null;setLoading(true,'جاري جلب البيانات...',30);try{const r=await fetch('/api/sheets/data',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sheet_id:sid})}),d=await r.json();if(d.error){showError(d.error);setLoading(false);return}allProducts=d.data||[];if(allProducts.length>0){console.log('📋 الأعمدة في الإكسل:',Object.keys(allProducts[0]));console.log('📝 أول منتج:',allProducts[0])}selectedProducts.clear();productTemplates={};allProducts.forEach((_,i)=>{selectedProducts.add(i);productTemplates[i]='products'});renderProducts();updateStats();document.getElementById('card-step1').style.display='none';document.getElementById('card-step2').style.display='';document.getElementById('step1').classList.remove('active');document.getElementById('step1').classList.add('completed');document.getElementById('step2').classList.add('active');const sheetMod=d.sheet_modified||'غير معروف';document.getElementById('sheetInfo').textContent=`(آخر تعديل على الشيت: ${sheetMod})`;showSuccess(`✓ تم جلب ${allProducts.length} منتج`)}catch(e){showError('فشل جلب البيانات')}finally{setLoading(false)}}
+const TMPL_COLORS={'products':'#1976d2','offers':'#f57c00','products_other':'#00897b'};
+const TMPL_LABELS={'products':'📦 منتجات','offers':'🏷️ عروض','products_other':'🛍️ أخرى'};
+function renderProducts(){const g=document.getElementById('productsGrid');if(!allProducts.length){g.innerHTML='<div class="empty-state"><div class="empty-icon">📭</div><div>لا توجد منتجات</div></div>';return}
+  let filtered=allProducts.map((p,i)=>({p,i})).filter(({p,i})=>{
+    let passFilter=true;
+    if(currentFilter==='visible')passFilter=!p._hidden;
+    let passSearch=true;
+    if(currentSearch){
+      const model=(p['الموديل']||'').toLowerCase();
+      const name=(p['اسم الصنف']||'').toLowerCase();
+      const barcode=(p['Barcode']||'').toLowerCase();
+      passSearch=model.includes(currentSearch)||name.includes(currentSearch)||barcode.includes(currentSearch);
+    }
+    return passFilter&&passSearch;
+  });
+  if(filtered.length===0&&currentSearch){
+    g.innerHTML=`<div class="no-results">🔍 لا توجد منتجات مطابقة للبحث "<b>${currentSearch}</b>"<br><small>جرب البحث بالموديل أو اسم المنتج أو الباركود</small></div>`;
+    document.getElementById('productsCount').textContent='لا توجد نتائج';
+    return;
+  }
+  document.getElementById('productsCount').textContent=`عرض ${filtered.length} من ${allProducts.length}${currentSearch?` (بحث: "${currentSearch}")`:''}`;
+  
+  // دالة لتظليل نص البحث
+  const highlight=(text)=>{
+    if(!currentSearch||!text)return text||'—';
+    const regex=new RegExp(`(${currentSearch})`,'gi');
+    return text.replace(regex,'<span class="search-highlight">$1</span>');
+  };
+  
+  g.innerHTML=filtered.map(({p,i})=>{
+    const sel=selectedProducts.has(i),t=productTemplates[i]||'products';
+    const isHidden=p._hidden;
+    const hideBtn=sel?`<div class="product-actions"><button class="product-action-btn hide-btn" onclick="hideProduct(${i},event)">👁️‍🗨️ إخفاء</button>${isHidden?`<button class="product-action-btn" onclick="unhideProduct(${i},event)">👁️ إظهار</button>`:''}</div>`:'';
+    const tmplColor=TMPL_COLORS[t]||'#1976d2';
+    const tmplLabel=TMPL_LABELS[t]||'📦 منتجات';
+    
+    // تظليل نص البحث في العرض
+    const displayName=highlight(p['اسم الصنف']||'—');
+    const displayModel=highlight(p['الموديل']||'');
+    
+    const priceVal=p['السعر بعد الخصم']||p['السعر بعد الخصم ']||'';
+    const oldPrice=p['السعر قبل الخصم']||'';
+    const tmplImg=`/api/templates/preview/${t}`;
+    return`<div class="product-card ${sel?'selected':''} ${isHidden?'hidden':''}" onclick="toggleProduct(${i})" style="overflow:hidden"><div class="product-check">${sel?'✓':''}</div><div class="product-name">${displayName}</div><div class="product-price">${priceVal?`<span class="price-current">${priceVal} ر.س</span>`:''}${oldPrice?`<span class="price-old">${oldPrice}</span>`:''}</div><div class="product-model">${displayModel}</div>${sel?`<div class="template-selector" onclick="event.stopPropagation()"><button class="template-btn ${t==='offers'?'selected':''}" onclick="setTemplate(${i},'offers')">🏷️ عروض</button><button class="template-btn ${t==='products'?'selected':''}" onclick="setTemplate(${i},'products')">📦 منتجات</button><button class="template-btn ${t==='products_other'?'selected':''}" onclick="setTemplate(${i},'products_other')">🛍️ أخرى</button></div><div style="margin:8px -8px -4px;border-radius:6px;overflow:hidden;border:2px solid ${tmplColor}" onclick="event.stopPropagation()"><img src="${tmplImg}" style="width:100%;height:80px;object-fit:cover;object-position:top;display:block" loading="lazy" title="${tmplLabel}"><div style="background:${tmplColor};color:#fff;font-size:10px;font-weight:600;text-align:center;padding:3px">${tmplLabel}</div></div>${hideBtn}`:''}</div>`;
+  }).join('')}
+function toggleProduct(i){selectedProducts.has(i)?selectedProducts.delete(i):(selectedProducts.add(i),productTemplates[i]||(productTemplates[i]='products'));renderProducts();updateStats()}
+function setTemplate(i,t){productTemplates[i]=t;renderProducts();updateStats()}
+function selectAll(){allProducts.forEach((_,i)=>{selectedProducts.add(i);productTemplates[i]||(productTemplates[i]='products')});renderProducts();updateStats()}
+function deselectAll(){selectedProducts.clear();renderProducts();updateStats()}
+function updateStats(){document.getElementById('totalProducts').textContent=allProducts.length;document.getElementById('selectedProducts').textContent=selectedProducts.size;let of=0;selectedProducts.forEach(i=>{if(productTemplates[i]==='offers')of++});document.getElementById('selectedOffers').textContent=of;document.getElementById('btnContinue').disabled=selectedProducts.size===0}
+function backToStep1(){document.getElementById('card-step1').style.display='';document.getElementById('card-step2').style.display='none';document.getElementById('step1').classList.add('active');document.getElementById('step1').classList.remove('completed');document.getElementById('step2').classList.remove('active')}
+function goToStep3(){document.getElementById('card-step2').style.display='none';document.getElementById('card-step3').style.display='';document.getElementById('step2').classList.remove('active');document.getElementById('step2').classList.add('completed');document.getElementById('step3').classList.add('active');document.getElementById('exportCount').textContent=selectedProducts.size;document.getElementById('pagesCount').textContent=Math.ceil(selectedProducts.size/6)}
+function backToStep2(){document.getElementById('card-step3').style.display='none';document.getElementById('card-step2').style.display='';document.getElementById('step2').classList.add('active');document.getElementById('step2').classList.remove('completed');document.getElementById('step3').classList.remove('active')}
+async function generateAndDownload(){const prods=Array.from(selectedProducts).map(i=>({...allProducts[i],template_type:productTemplates[i]||'products'}));setLoading(true,'جاري إنشاء PDF...',10);try{let p=10;const iv=setInterval(()=>{p=Math.min(p+5,80);setLoading(true,'جاري إنشاء PDF...',p)},500);const r=await fetch('/api/cards/generate-pdf',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({products:prods})});clearInterval(iv);if(!r.ok){const d=await r.json();showError(d.error||'فشل التصدير');setLoading(false);return}setLoading(true,'جاري التحميل...',100);const b=await r.blob(),u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download=`cards_${new Date().toISOString().slice(0,19).replace(/[:T]/g,'-')}.pdf`;document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(u);showSuccess(`✓ تم تصدير ${selectedProducts.size} كرت!`)}catch(e){showError('فشل التحميل')}finally{setLoading(false)}}
+</script>
+
+</body>
+</html>

@@ -1,8 +1,14 @@
 Flask
 flask-cors
+python-dotenv
 Pillow
 python-barcode
 arabic-reshaper
 python-bidi
 pandas
+openpyxl
 reportlab
+google-auth
+google-auth-oauthlib
+google-auth-httplib2
+google-api-python-client

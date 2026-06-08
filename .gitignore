@@ -1,0 +1,22 @@
+# Secrets & credentials
+.env
+.env.example
+service_account.json
+*.json
+
+# Keep non-secret JSONs tracked (override above)
+!requirements.txt
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Uploads & generated files
+products.xlsx
+excel_meta.json
+products_tracker.json
+*.pdf
+
+# OS
+.DS_Store
