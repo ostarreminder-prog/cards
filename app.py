@@ -773,13 +773,31 @@ def draw_product_name_safe(draw, center_x, start_y, text, fill, max_width):
             return
 
 def process_product_card(template_path, row, base_riyal_img=None):
-    """معالجة منتج واحد على قالب واحد"""
+    """معالجة منتج واحد على قالب واحد — أي عمود مفقود يُتجاهل"""
+    try:
+        return _process_product_card_inner(template_path, row, base_riyal_img)
+    except Exception as e:
+        print(f"⚠️ خطأ في معالجة المنتج: {e} | المنتج: {row.get('اسم الصنف','?')}")
+        try:
+            img = Image.open(template_path).convert("RGB")
+            buf = io.BytesIO()
+            img.save(buf, format="PNG")
+            buf.seek(0)
+            return buf, "error_card"
+        except:
+            return None, "error_card"
+
+def _process_product_card_inner(template_path, row, base_riyal_img=None):
+    """المعالجة الفعلية للكرت"""
     
     product_name = row.get("اسم الصنف", "")
     price_before = clean_price(row.get("السعر قبل الخصم", ""))
     price_after = clean_price(row.get("السعر بعد الخصم", "") or row.get("السعر بعد الخصم ", ""))
     discount_raw = str(row.get("نسبة الخصم", "")).replace("%", "").replace("٪", "").strip()
-    discount_val = clean_price(discount_raw)
+    _d = clean_price(discount_raw)
+    if _d is not None and 0 < _d <= 1:
+        _d = round(_d * 100)
+    discount_val = _d
     model_name = str(row.get("الموديل", "")).strip()
     barcode_value = str(row.get("Barcode", "")).strip()
     
@@ -828,15 +846,6 @@ def process_product_card(template_path, row, base_riyal_img=None):
         reshaped = arabic_reshaper.reshape(discount_text)
         bidi = get_display(reshaped)
         draw.text(DISCOUNT_POS, bidi, fill="red", font=font_discount, anchor="lm")
-        
-        # خط الشطب
-        bbox = draw.textbbox((0, 0), before_text, font=font_price_small)
-        w = bbox[2] - bbox[0]
-        draw.line(
-            (PRICE_BEFORE_POS[0] - (w // 2), PRICE_BEFORE_POS[1],
-             PRICE_BEFORE_POS[0] + (w // 2), PRICE_BEFORE_POS[1]),
-            fill="black", width=4
-        )
     
     # السعر بعد
     price_text = f"{price_after:,}"
