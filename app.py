@@ -777,8 +777,9 @@ def process_product_card(template_path, row, base_riyal_img=None):
     
     product_name = row.get("اسم الصنف", "")
     price_before = clean_price(row.get("السعر قبل الخصم", ""))
-    price_after = clean_price(row.get("السعر بعد الخصم ", ""))
-    discount_val = clean_price(row.get("نسبة الخصم", ""))
+    price_after = clean_price(row.get("السعر بعد الخصم", "") or row.get("السعر بعد الخصم ", ""))
+    discount_raw = str(row.get("نسبة الخصم", "")).replace("%", "").replace("٪", "").strip()
+    discount_val = clean_price(discount_raw)
     model_name = str(row.get("الموديل", "")).strip()
     barcode_value = str(row.get("Barcode", "")).strip()
     
@@ -821,6 +822,12 @@ def process_product_card(template_path, row, base_riyal_img=None):
             reshaped = arabic_reshaper.reshape(discount_text)
             bidi = get_display(reshaped)
             draw.text(DISCOUNT_POS, bidi, fill="red", font=font_discount, anchor="lm")
+    elif discount_val:
+        # نسبة الخصم بدون سعر قبل
+        discount_text = f"%{discount_val} خصم"
+        reshaped = arabic_reshaper.reshape(discount_text)
+        bidi = get_display(reshaped)
+        draw.text(DISCOUNT_POS, bidi, fill="red", font=font_discount, anchor="lm")
         
         # خط الشطب
         bbox = draw.textbbox((0, 0), before_text, font=font_price_small)
