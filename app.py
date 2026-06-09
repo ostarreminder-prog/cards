@@ -456,8 +456,21 @@ def load_font(path, size):
         return ImageFont.load_default()
 
 
+# هل Pillow مبني مع raqm؟ إذا نعم فهو يعالج العربية تلقائياً
+try:
+    from PIL import features as _pil_features
+    RAQM_AVAILABLE = _pil_features.check('raqm')
+except Exception:
+    RAQM_AVAILABLE = False
+
+
 def arabic(text):
-    """تشكيل النص العربي بشكل صحيح"""
+    """تشكيل النص العربي بشكل صحيح.
+    إذا كان Pillow يدعم raqm فهو يتولى الـ shaping + bidi تلقائياً،
+    لذا نمرّر النص الخام لتفادي المعالجة المزدوجة (النص المقلوب).
+    """
+    if RAQM_AVAILABLE:
+        return str(text)
     try:
         return get_display(arabic_reshaper.reshape(str(text)))
     except Exception:
@@ -766,8 +779,7 @@ def draw_product_name_safe(draw, center_x, start_y, text, fill, max_width):
         if lines:
             y = start_y
             for line in lines:
-                reshaped = arabic_reshaper.reshape(line)
-                bidi_line = get_display(reshaped)
+                bidi_line = arabic(line)
                 draw.text((center_x, y), bidi_line, fill=fill, font=font, anchor="mm")
                 y += size + 6
             return
@@ -793,11 +805,20 @@ def _process_product_card_inner(template_path, row, base_riyal_img=None):
     product_name = row.get("اسم الصنف", "")
     price_before = clean_price(row.get("السعر قبل الخصم", ""))
     price_after = clean_price(row.get("السعر بعد الخصم", "") or row.get("السعر بعد الخصم ", ""))
-    discount_raw = str(row.get("نسبة الخصم", "")).replace("%", "").replace("٪", "").strip()
-    _d = clean_price(discount_raw)
-    if _d is not None and 0 < _d <= 1:
-        _d = round(_d * 100)
-    discount_val = _d
+    discount_raw = str(row.get("نسبة الخصم", "")).replace("%", "").replace("٪", "").replace(",", "").strip()
+    # نقرأ القيمة كعدد عشري قبل أي تقريب
+    try:
+        _dval = float(discount_raw) if discount_raw and discount_raw.lower() != "nan" else None
+    except Exception:
+        _dval = None
+    if _dval is None or _dval <= 0:
+        discount_val = None
+    elif _dval < 1:
+        # كسر مثل 0.25 يعني 25%
+        discount_val = round(_dval * 100)
+    else:
+        # رقم صحيح مثل 25 أو 50 يعني نسبة مباشرة
+        discount_val = round(_dval)
     model_name = str(row.get("الموديل", "")).strip()
     barcode_value = str(row.get("Barcode", "")).strip()
     
@@ -828,6 +849,9 @@ def _process_product_card_inner(template_path, row, base_riyal_img=None):
     if price_before:
         before_text = f"{price_before:,}"
         draw.text(PRICE_BEFORE_POS, before_text, fill="red", font=font_price_small, anchor="mm")
+        # خط الشطب على السعر القديم
+        bb = draw.textbbox(PRICE_BEFORE_POS, before_text, font=font_price_small, anchor="mm")
+        draw.line([(bb[0], PRICE_BEFORE_POS[1]), (bb[2], PRICE_BEFORE_POS[1])], fill="red", width=3)
         
         # نسبة الخصم
         if discount_val:
@@ -837,14 +861,12 @@ def _process_product_card_inner(template_path, row, base_riyal_img=None):
         
         if display_discount:
             discount_text = f"%{display_discount} خصم"
-            reshaped = arabic_reshaper.reshape(discount_text)
-            bidi = get_display(reshaped)
+            bidi = arabic(discount_text)
             draw.text(DISCOUNT_POS, bidi, fill="red", font=font_discount, anchor="lm")
     elif discount_val:
         # نسبة الخصم بدون سعر قبل
         discount_text = f"%{discount_val} خصم"
-        reshaped = arabic_reshaper.reshape(discount_text)
-        bidi = get_display(reshaped)
+        bidi = arabic(discount_text)
         draw.text(DISCOUNT_POS, bidi, fill="red", font=font_discount, anchor="lm")
     
     # السعر بعد
@@ -859,10 +881,10 @@ def _process_product_card_inner(template_path, row, base_riyal_img=None):
     
     # التسميات
     if price_before:
-        label = get_display(arabic_reshaper.reshape("قبل"))
+        label = arabic("قبل")
         draw.text(LABEL_BEFORE_POS, label, fill="red", font=font_label, anchor="mm")
     
-    label_after = get_display(arabic_reshaper.reshape("بعد"))
+    label_after = arabic("بعد")
     draw.text(LABEL_AFTER_POS, label_after, fill="red", font=font_label)
     
     # الباركود والموديل
@@ -873,8 +895,7 @@ def _process_product_card_inner(template_path, row, base_riyal_img=None):
             
             if model_name and model_name != "nan" and model_name != "":
                 model_text = f"الموديل: {model_name}"
-                reshaped = arabic_reshaper.reshape(model_text)
-                bidi = get_display(reshaped)
+                bidi = arabic(model_text)
                 model_x = BARCODE_POS_X + 330
                 model_y = BARCODE_POS_Y - 1
                 draw.text((model_x, model_y), bidi, fill="red", font=font_model, anchor="lm")
