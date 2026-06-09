@@ -56,6 +56,18 @@ def clean_col(name):
     """تنظيف اسم العمود من المسافات الغريبة"""
     return str(name).replace('\xa0', ' ').replace('\u200b', '').strip()
 
+def delete_excel_file():
+    """حذف ملف الإكسل المرفوع وبياناته الوصفية بعد انتهاء العملية"""
+    try:
+        if os.path.exists(EXCEL_FILE):
+            os.remove(EXCEL_FILE)
+        meta_file = os.path.join(BASE_DIR, 'excel_meta.json')
+        if os.path.exists(meta_file):
+            os.remove(meta_file)
+        print("[EXCEL] 🗑️ تم حذف ملف الإكسل بعد انتهاء العملية")
+    except Exception as e:
+        print(f"[EXCEL] ✗ خطأ في حذف الملف: {e}")
+
 def read_excel_products():
     """قراءة المنتجات من ملف Excel المرفوع مع تحويل أسماء الأعمدة"""
     if not os.path.exists(EXCEL_FILE):
@@ -1814,7 +1826,14 @@ def generate_cards_pdf():
             try:
                 img_buf, _ = process_product_card(template_path, product)
                 img = Image.open(img_buf).convert("RGB")
-                card_images.append(img)
+                # عدد النسخ المطلوبة لنفس الكرت (افتراضي 1)
+                try:
+                    qty = int(float(product.get('quantity', 1)))
+                except (ValueError, TypeError):
+                    qty = 1
+                qty = max(1, min(qty, 100))
+                for _ in range(qty):
+                    card_images.append(img)
             except Exception as e:
                 print(f"Error processing product {i}: {e}")
                 continue
@@ -1847,6 +1866,9 @@ def generate_cards_pdf():
 
         # إنشاء PDF مع 6 كروت في الصفحة (2×3)
         pdf_buffer = generate_pdf_6_per_page(card_images)
+
+        # ✅ انتهت العملية: احذف ملف الإكسل المرفوع لينتظر النظام رفع ملف جديد
+        delete_excel_file()
         
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         return send_file(
@@ -1879,6 +1901,9 @@ def generate_pdf_6_per_page(card_images):
     
     card_width = available_width / cards_per_row
     card_height = available_height / cards_per_col
+
+    # معامل تصغير البطاقة (0.9 = أصغر بـ 10%)
+    CARD_SCALE = 0.9
     
     pdf_buffer = io.BytesIO()
     c = canvas.Canvas(pdf_buffer, pagesize=A4)
@@ -1894,6 +1919,12 @@ def generate_pdf_6_per_page(card_images):
         
         x = margin_x + (col * (card_width + gap_x))
         y = page_height - margin_y - ((row + 1) * (card_height + gap_y)) + gap_y
+
+        # تصغير البطاقة مع توسيطها داخل خانتها
+        draw_w = card_width * CARD_SCALE
+        draw_h = card_height * CARD_SCALE
+        draw_x = x + (card_width - draw_w) / 2
+        draw_y = y + (card_height - draw_h) / 2
         
         # حفظ الصورة مؤقتاً
         img_buffer = io.BytesIO()
@@ -1902,7 +1933,7 @@ def generate_pdf_6_per_page(card_images):
         
         # رسم الصورة
         img_reader = ImageReader(img_buffer)
-        c.drawImage(img_reader, x, y, width=card_width, height=card_height, preserveAspectRatio=True)
+        c.drawImage(img_reader, draw_x, draw_y, width=draw_w, height=draw_h, preserveAspectRatio=True)
     
     c.save()
     pdf_buffer.seek(0)
@@ -1984,6 +2015,10 @@ def generate_cards_png():
                 zf.writestr(f"{fname}.png", img_buf.read())
         
         zip_buf.seek(0)
+
+        # ✅ انتهت العملية: احذف ملف الإكسل المرفوع لينتظر النظام رفع ملف جديد
+        delete_excel_file()
+
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         return send_file(
             zip_buf,
